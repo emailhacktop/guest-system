@@ -1,14 +1,11 @@
 const BASE_URL = "http://localhost:3001/api"
 
-// 🔵 گرفتن همه مهمان‌ها
+// ========================
+// GET ALL GUESTS
+// ========================
 export async function getGuests() {
   try {
     const res = await fetch(`${BASE_URL}/guests`)
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch guests")
-    }
-
     return await res.json()
   } catch (error) {
     console.error("getGuests error:", error)
@@ -16,7 +13,9 @@ export async function getGuests() {
   }
 }
 
-// 🟢 ساخت مهمان
+// ========================
+// CREATE GUEST
+// ========================
 export async function createGuest(data: {
   name: string
   max_views: number
@@ -30,10 +29,6 @@ export async function createGuest(data: {
       body: JSON.stringify(data)
     })
 
-    if (!res.ok) {
-      throw new Error("Failed to create guest")
-    }
-
     return await res.json()
   } catch (error) {
     console.error("createGuest error:", error)
@@ -41,15 +36,12 @@ export async function createGuest(data: {
   }
 }
 
-// 🟣 گرفتن مهمان با token (برای مرحله بعد)
+// ========================
+// GET GUEST BY TOKEN
+// ========================
 export async function getGuestByToken(token: string) {
   try {
     const res = await fetch(`${BASE_URL}/guest/${token}`)
-
-    if (!res.ok) {
-      throw new Error("Guest not found")
-    }
-
     return await res.json()
   } catch (error) {
     console.error("getGuestByToken error:", error)
@@ -57,16 +49,14 @@ export async function getGuestByToken(token: string) {
   }
 }
 
-// 🟠 افزایش view
+// ========================
+// INCREASE VIEW
+// ========================
 export async function increaseView(token: string) {
   try {
     const res = await fetch(`${BASE_URL}/guest/view/${token}`, {
       method: "POST"
     })
-
-    if (!res.ok) {
-      throw new Error("Failed to increase view")
-    }
 
     return await res.json()
   } catch (error) {
