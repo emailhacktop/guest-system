@@ -6,11 +6,15 @@ import { createClient } from "@supabase/supabase-js"
 dotenv.config()
 
 const app = express()
+
+// ========================
+// MIDDLEWARE
+// ========================
 app.use(cors())
 app.use(express.json())
 
 // ========================
-// Supabase Client
+// SUPABASE CLIENT
 // ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -34,16 +38,22 @@ app.get("/api/guests", async (req, res) => {
     })
   }
 
-  res.json(data)
+  return res.json(data)
 })
 
 // ========================
-// CREATE NEW GUEST
+// CREATE GUEST
 // ========================
 app.post("/api/guest", async (req, res) => {
   const { name, max_views } = req.body
 
-  // generate random token
+  if (!name || !max_views) {
+    return res.status(400).json({
+      success: false,
+      message: "name and max_views are required"
+    })
+  }
+
   const token = Math.random().toString(36).substring(2, 12)
 
   const { data, error } = await supabase
@@ -58,6 +68,7 @@ app.post("/api/guest", async (req, res) => {
       }
     ])
     .select()
+    .single()
 
   if (error) {
     return res.status(500).json({
@@ -67,7 +78,7 @@ app.post("/api/guest", async (req, res) => {
     })
   }
 
-  res.json(data[0])
+  return res.json(data)
 })
 
 // ========================
@@ -89,19 +100,11 @@ app.get("/api/guest/:token", async (req, res) => {
     })
   }
 
-  // lock if max views reached
-  if (data.views >= data.max_views) {
-    return res.status(403).json({
-      success: false,
-      message: "Link expired"
-    })
-  }
-
-  res.json(data)
+  return res.json(data)
 })
 
 // ========================
-// INCREASE VIEW COUNT
+// INCREASE VIEW
 // ========================
 app.post("/api/guest/view/:token", async (req, res) => {
   const { token } = req.params
@@ -119,7 +122,6 @@ app.post("/api/guest/view/:token", async (req, res) => {
     })
   }
 
-  // prevent overflow
   if (data.views >= data.max_views) {
     return res.status(403).json({
       success: false,
@@ -139,7 +141,7 @@ app.post("/api/guest/view/:token", async (req, res) => {
     })
   }
 
-  res.json({
+  return res.json({
     success: true,
     views: data.views + 1
   })
@@ -163,7 +165,7 @@ app.delete("/api/guest/:id", async (req, res) => {
     })
   }
 
-  res.json({ success: true })
+  return res.json({ success: true })
 })
 
 // ========================
