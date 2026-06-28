@@ -17,13 +17,16 @@ export default function Dashboard() {
   const [maxViews, setMaxViews] = useState(1)
   const [loading, setLoading] = useState(false)
 
+  // ⭐ SEARCH STATE (این مهمه)
+  const [search, setSearch] = useState("")
+
   // ========================
   // LOAD GUESTS
   // ========================
   async function loadGuests() {
     try {
       const data = await getGuests()
-      setGuests(data || [])
+      setGuests(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("loadGuests error:", error)
     }
@@ -37,14 +40,14 @@ export default function Dashboard() {
   // CREATE GUEST
   // ========================
   async function handleCreate() {
-    if (!name) return
+    if (!name.trim()) return
 
     try {
       setLoading(true)
 
       await createGuest({
-        name,
-        max_views: maxViews
+        name: name.trim(),
+        max_views: Number(maxViews)
       })
 
       setName("")
@@ -58,6 +61,20 @@ export default function Dashboard() {
       setLoading(false)
     }
   }
+
+  // ========================
+  // ⭐ FILTER (SEARCH LOGIC)
+  // ========================
+  const filteredGuests = guests.filter((g) =>
+    g.name?.toLowerCase().includes(search.toLowerCase()) ||
+    g.token?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  // ========================
+  // REAL STATS
+  // ========================
+  const activeCount = guests.filter(g => g.active).length
+  const totalViews = guests.reduce((sum, g) => sum + (g.views || 0), 0)
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -86,6 +103,7 @@ export default function Dashboard() {
               placeholder="حداکثر بازدید"
               value={maxViews}
               onChange={(e) => setMaxViews(Number(e.target.value))}
+              min={1}
             />
 
             <button
@@ -95,22 +113,32 @@ export default function Dashboard() {
             >
               {loading ? "در حال ساخت..." : "ساخت مهمان"}
             </button>
+          </div>
 
+          {/* ⭐ SEARCH INPUT (این هم مهمه) */}
+          <div className="bg-white p-3 rounded shadow">
+            <input
+              className="border p-2 w-full"
+              placeholder="جستجو بر اساس نام یا توکن..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
           {/* STATS */}
           <div className="grid grid-cols-3 gap-4">
+
             <StatsCard title="مهمان‌ها" value={guests.length} />
-            <StatsCard title="فعال" value="8" />
-            <StatsCard title="بازدید" value="34" />
+            <StatsCard title="فعال" value={activeCount} />
+            <StatsCard title="بازدید" value={totalViews} />
+
           </div>
 
-          {/* TABLE */}
-          <GuestTable guests={guests} />
+          {/* TABLE (⭐ اینجا فرق مهمه) */}
+          <GuestTable guests={filteredGuests} />
 
         </div>
       </div>
-
     </div>
   )
 }
