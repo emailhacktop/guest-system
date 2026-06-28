@@ -9,11 +9,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// ========================
+// Supabase Client
+// ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 )
-
 
 // ========================
 // GET ALL GUESTS
@@ -35,13 +37,13 @@ app.get("/api/guests", async (req, res) => {
   res.json(data)
 })
 
-
 // ========================
-// CREATE GUEST
+// CREATE NEW GUEST
 // ========================
 app.post("/api/guest", async (req, res) => {
   const { name, max_views } = req.body
 
+  // generate random token
   const token = Math.random().toString(36).substring(2, 12)
 
   const { data, error } = await supabase
@@ -68,9 +70,8 @@ app.post("/api/guest", async (req, res) => {
   res.json(data[0])
 })
 
-
 // ========================
-// GET GUEST BY TOKEN (LOCK LOGIC)
+// GET GUEST BY TOKEN
 // ========================
 app.get("/api/guest/:token", async (req, res) => {
   const { token } = req.params
@@ -88,20 +89,19 @@ app.get("/api/guest/:token", async (req, res) => {
     })
   }
 
-  // 🔥 LOCK CHECK
+  // lock if max views reached
   if (data.views >= data.max_views) {
     return res.status(403).json({
       success: false,
-      message: "This link is expired (max views reached)"
+      message: "Link expired"
     })
   }
 
   res.json(data)
 })
 
-
 // ========================
-// INCREASE VIEW (SAFE VERSION)
+// INCREASE VIEW COUNT
 // ========================
 app.post("/api/guest/view/:token", async (req, res) => {
   const { token } = req.params
@@ -119,7 +119,7 @@ app.post("/api/guest/view/:token", async (req, res) => {
     })
   }
 
-  // 🔥 جلوگیری از افزایش بیشتر از حد
+  // prevent overflow
   if (data.views >= data.max_views) {
     return res.status(403).json({
       success: false,
@@ -145,7 +145,6 @@ app.post("/api/guest/view/:token", async (req, res) => {
   })
 })
 
-
 // ========================
 // DELETE GUEST
 // ========================
@@ -166,7 +165,6 @@ app.delete("/api/guest/:id", async (req, res) => {
 
   res.json({ success: true })
 })
-
 
 // ========================
 // START SERVER
