@@ -146,49 +146,68 @@ try {
 async function editGuest(g: Guest) {
 
 const newName =
-  prompt(
-    "نام جدید",
-    g.name
-  )
+prompt(
+"نام جدید",
+g.name
+)
 
 if (!newName) return
 
 const newMax =
-  prompt(
-    "حداکثر بازدید",
-    String(g.max_views)
-  )
+prompt(
+"حداکثر بازدید (1 تا 999)",
+String(g.max_views)
+)
 
 if (!newMax) return
 
+// تبدیل به عدد
+const maxValue =
+Number(newMax)
+
+// اعتبارسنجی
+if (
+isNaN(maxValue) ||
+maxValue < 1 ||
+maxValue > 999
+) {
+
+alert(
+  "حداکثر بازدید باید بین 1 تا 999 باشد"
+)
+
+return
+
+}
+
 try {
 
-  await fetch(
-    `http://localhost:3001/api/guest/${g.id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-      body: JSON.stringify({
-        name: newName,
-        max_views:
-          Number(newMax)
-      })
-    }
-  )
-
-  if (onRefresh) {
-    onRefresh()
+await fetch(
+  `http://localhost:3001/api/guest/${g.id}`,
+  {
+    method: "PUT",
+    headers: {
+      "Content-Type":
+        "application/json"
+    },
+    body: JSON.stringify({
+      name: newName.trim(),
+      max_views: maxValue
+    })
   }
+)
+
+if (onRefresh) {
+  onRefresh()
+}
 
 } catch (err) {
 
-  console.error(
-    "Edit error:",
-    err
-  )
+console.error(
+  "Edit error:",
+  err
+)
+
 }
 
 }

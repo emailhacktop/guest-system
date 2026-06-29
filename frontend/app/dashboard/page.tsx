@@ -257,12 +257,7 @@ return (
               : "ساخت مهمان"}
           </button>
 
-          <button
-            onClick={exportExcel}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            دانلود اکسل
-          </button>
+
 
         </div>
 
