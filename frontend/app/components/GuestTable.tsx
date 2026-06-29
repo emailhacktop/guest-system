@@ -1,427 +1,476 @@
+'use client'
 type Guest = {
-id: string
-name: string
-token: string
-max_views: number
-views: number
-active: boolean
+  id: string
+  name: string
+  token: string
+  max_views: number
+  views: number
+  active: boolean
 }
 
 type Props = {
-guests?: Guest[]
-onRefresh?: () => void
+  guests?: Guest[]
+  onRefresh?: () => Promise<void>
 }
 
 export default function GuestTable({
-guests,
-onRefresh
+  guests,
+  onRefresh
 }: Props) {
 
-// ========================
-// COPY LINK
-// ========================
-async function copyLink(token: string) {
+  // ========================
+  // COPY LINK
+  // ========================
+  async function copyLink(token: string) {
 
-const url =
-  `http://localhost:3000/guest/${token}`
+    const url =
+      `http://localhost:3000/guest/${token}`
 
-try {
+    try {
 
-  await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(url)
 
-  alert("لینک کپی شد")
+      alert("لینک کپی شد")
 
-} catch (err) {
+    } catch (err) {
 
-  console.error(
-    "Copy failed:",
-    err
-  )
-}
-
-}
-
-// ========================
-// DELETE GUEST
-// ========================
-async function deleteGuest(id: string) {
-
-const ok =
-  confirm("آیا حذف شود؟")
-
-if (!ok) return
-
-try {
-
-  await fetch(
-    `http://localhost:3001/api/guest/${id}`,
-    {
-      method: "DELETE"
+      console.error(
+        "Copy failed:",
+        err
+      )
     }
-  )
-
-  if (onRefresh) {
-    onRefresh()
   }
 
-} catch (err) {
+  // ========================
+  // DELETE GUEST
+  // ========================
+  async function deleteGuest(id: string) {
 
-  console.error(
-    "Delete error:",
-    err
-  )
-}
+    const ok =
+      confirm("آیا حذف شود؟")
 
-}
+    if (!ok) return
 
-// ========================
-// RESET VIEWS
-// ========================
-async function resetViews(id: string, token: string) {
+    try {
 
-try {
+      const res = await fetch(
+        `http://localhost:3001/api/guest/${id}`,
+        {
+          method: "DELETE"
+        }
+      )
 
-await fetch(
-  `http://localhost:3001/api/guest/reset/${id}`,
-  {
-    method: "POST"
-  }
-)
+      const data =
+        await res.json()
 
-// پاک کردن سشن بازدید
-localStorage.removeItem(
-  `view_${token}`
-)
+      console.log(data)
 
-if (onRefresh) {
-  onRefresh()
-}
+      if (data.success) {
 
-} catch (err) {
+        alert("حذف شد")
 
-console.error(
-  "Reset error:",
-  err
-)
+        if (onRefresh) {
 
-}
+          await onRefresh()
+        }
 
-}
+      } else {
 
-// ========================
-// TOGGLE ACTIVE
-// ========================
-async function toggleGuest(
-id: string,
-active: boolean
-) {
+        alert("حذف انجام نشد")
+      }
 
-try {
+    } catch (err) {
 
-  await fetch(
-    `http://localhost:3001/api/guest/toggle/${id}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json"
-      },
-      body: JSON.stringify({
-        active: !active
-      })
+      console.error(
+        "Delete error:",
+        err
+      )
     }
-  )
-
-  if (onRefresh) {
-    onRefresh()
   }
 
-} catch (err) {
+  // ========================
+  // RESET VIEWS
+  // ========================
+  async function resetViews(
+    id: string,
+    token: string
+  ) {
 
-  console.error(
-    "Toggle error:",
-    err
-  )
-}
+    try {
 
-}
+      const res = await fetch(
+        `http://localhost:3001/api/guest/reset/${id}`,
+        {
+          method: "POST"
+        }
+      )
 
-// ========================
-// EDIT GUEST
-// ========================
-async function editGuest(g: Guest) {
+      const data =
+        await res.json()
 
-const newName =
-prompt(
-"نام جدید",
-g.name
-)
+      console.log(data)
 
-if (!newName) return
+      // پاک کردن سشن بازدید
+      localStorage.removeItem(
+        `view_${token}`
+      )
 
-const newMax =
-prompt(
-"حداکثر بازدید (1 تا 999)",
-String(g.max_views)
-)
+      if (data.success) {
 
-if (!newMax) return
+        alert("بازدید ریست شد")
 
-// تبدیل به عدد
-const maxValue =
-Number(newMax)
+        if (onRefresh) {
 
-// اعتبارسنجی
-if (
-isNaN(maxValue) ||
-maxValue < 1 ||
-maxValue > 999
-) {
+          await onRefresh()
+        }
+      }
 
-alert(
-  "حداکثر بازدید باید بین 1 تا 999 باشد"
-)
+    } catch (err) {
 
-return
-
-}
-
-try {
-
-await fetch(
-  `http://localhost:3001/api/guest/${g.id}`,
-  {
-    method: "PUT",
-    headers: {
-      "Content-Type":
-        "application/json"
-    },
-    body: JSON.stringify({
-      name: newName.trim(),
-      max_views: maxValue
-    })
+      console.error(
+        "Reset error:",
+        err
+      )
+    }
   }
-)
 
-// پاک کردن سشن بازدید 
-localStorage.removeItem( `view_${g.token}` )
+  // ========================
+  // TOGGLE ACTIVE
+  // ========================
+  async function toggleGuest(
+    id: string,
+    active: boolean
+  ) {
 
-if (onRefresh) {
-  onRefresh()
-}
+    try {
 
-} catch (err) {
+      const res = await fetch(
+        `http://localhost:3001/api/guest/toggle/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            active: !active
+          })
+        }
+      )
 
-console.error(
-  "Edit error:",
-  err
-)
+      const data =
+        await res.json()
 
-}
+      console.log(data)
 
-}
+      if (data.success) {
 
-// ========================
-// EMPTY STATE
-// ========================
-if (
-!guests ||
-guests.length === 0
-) {
+        if (onRefresh) {
 
-return (
-  <div className="bg-white p-4 rounded shadow text-gray-500">
+          await onRefresh()
+        }
+      }
 
-    هیچ مهمانی وجود ندارد
+    } catch (err) {
 
-  </div>
-)
+      console.error(
+        "Toggle error:",
+        err
+      )
+    }
+  }
 
-}
+  // ========================
+  // EDIT GUEST
+  // ========================
+  async function editGuest(g: Guest) {
 
-// ========================
-// MAIN UI
-// ========================
-return (
+    const newName =
+      prompt(
+        "نام جدید",
+        g.name
+      )
 
-<div className="bg-white p-4 rounded shadow overflow-x-auto">
+    if (!newName) return
 
-  <table className="w-full text-sm">
+    const newMax =
+      prompt(
+        "حداکثر بازدید (1 تا 999)",
+        String(g.max_views)
+      )
 
-    <thead>
+    if (!newMax) return
 
-      <tr className="border-b bg-gray-50">
+    const maxValue =
+      Number(newMax)
 
-        <th className="text-left p-3">
-          نام
-        </th>
+    // validation
+    if (
+      isNaN(maxValue) ||
+      maxValue < 1 ||
+      maxValue > 999
+    ) {
 
-        <th className="text-left p-3">
-          توکن
-        </th>
+      alert(
+        "حداکثر بازدید باید بین 1 تا 999 باشد"
+      )
 
-        <th className="text-left p-3">
-          بازدید
-        </th>
+      return
+    }
 
-        <th className="text-left p-3">
-          حداکثر
-        </th>
+    try {
 
-        <th className="text-left p-3">
-          وضعیت
-        </th>
+      const res = await fetch(
+        `http://localhost:3001/api/guest/${g.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+          body: JSON.stringify({
+            name: newName.trim(),
+            max_views: maxValue
+          })
+        }
+      )
 
-        <th className="text-left p-3">
-          عملیات
-        </th>
+      const data =
+        await res.json()
 
-      </tr>
+      console.log(data)
 
-    </thead>
+      if (data.success) {
 
-    <tbody>
+        alert("ویرایش شد")
 
-      {guests.map((g) => (
+        // پاک کردن سشن بازدید
+        localStorage.removeItem(
+          `view_${g.token}`
+        )
 
-        <tr
-          key={g.id}
-          className="border-b hover:bg-gray-50 transition"
-        >
+        if (onRefresh) {
 
-          {/* NAME */}
-          <td className="p-3 font-medium">
+          await onRefresh()
+        }
 
-            {g.name}
+      } else {
 
-          </td>
+        alert("ویرایش انجام نشد")
+      }
 
-          {/* TOKEN */}
-          <td className="p-3 text-xs text-blue-600">
+    } catch (err) {
 
-            {g.token}
+      console.error(
+        "Edit error:",
+        err
+      )
+    }
+  }
 
-          </td>
+  // ========================
+  // EMPTY STATE
+  // ========================
+  if (
+    !guests ||
+    guests.length === 0
+  ) {
 
-          {/* VIEWS */}
-          <td className="p-3">
+    return (
+      <div className="bg-white p-4 rounded shadow text-gray-500">
 
-            {g.views}
+        هیچ مهمانی وجود ندارد
 
-          </td>
+      </div>
+    )
+  }
 
-          {/* MAX */}
-          <td className="p-3">
+  // ========================
+  // MAIN UI
+  // ========================
+  return (
 
-            {g.max_views}
+    <div className="bg-white p-4 rounded shadow overflow-x-auto">
 
-          </td>
+      <table className="w-full text-sm">
 
-          {/* STATUS */}
-          <td className="p-3">
+        <thead>
 
-            {g.active ? (
+          <tr className="border-b bg-gray-50">
 
-              <span className="text-green-600 font-medium">
+            <th className="text-left p-3">
+              نام
+            </th>
 
-                فعال
+            <th className="text-left p-3">
+              توکن
+            </th>
 
-              </span>
+            <th className="text-left p-3">
+              بازدید
+            </th>
 
-            ) : (
+            <th className="text-left p-3">
+              حداکثر
+            </th>
 
-              <span className="text-red-600 font-medium">
+            <th className="text-left p-3">
+              وضعیت
+            </th>
 
-                غیرفعال
+            <th className="text-left p-3">
+              عملیات
+            </th>
 
-              </span>
+          </tr>
 
-            )}
+        </thead>
 
-          </td>
+        <tbody>
 
-          {/* ACTIONS */}
-          <td className="p-3 flex flex-wrap gap-2">
+          {guests.map((g) => (
 
-            {/* OPEN */}
-            <a
-              href={`/guest/${g.token}`}
-              target="_blank"
-              className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+            <tr
+              key={g.id}
+              className="border-b hover:bg-gray-50 transition"
             >
-              باز کردن
-            </a>
 
-            {/* COPY */}
-            <button
-              onClick={() =>
-                copyLink(g.token)
-              }
-              className="bg-gray-600 text-white px-2 py-1 rounded text-xs"
-            >
-              کپی لینک
-            </button>
+              {/* NAME */}
+              <td className="p-3 font-medium">
 
-            {/* EDIT */}
-            <button
-              onClick={() =>
-                editGuest(g)
-              }
-              className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
-            >
-              ویرایش
-            </button>
+                {g.name}
 
-            {/* RESET */}
-            <button
-              onClick={() =>
-                resetViews(g.id, g.token)
-              }
-              className="bg-indigo-600 text-white px-2 py-1 rounded text-xs"
-            >
-              ریست
-            </button>
+              </td>
 
-            {/* BLOCK */}
-            <button
-              onClick={() =>
-                toggleGuest(
-                  g.id,
-                  g.active
-                )
-              }
-              className={`px-2 py-1 rounded text-xs text-white ${
-                g.active
-                  ? "bg-orange-600"
-                  : "bg-green-600"
-              }`}
-            >
-              {g.active
-                ? "مسدود"
-                : "فعال"}
-            </button>
+              {/* TOKEN */}
+              <td className="p-3 text-xs text-blue-600">
 
-            {/* DELETE */}
-            <button
-              onClick={() =>
-                deleteGuest(g.id)
-              }
-              className="bg-red-600 text-white px-2 py-1 rounded text-xs"
-            >
-              حذف
-            </button>
+                {g.token}
 
-          </td>
+              </td>
 
-        </tr>
+              {/* VIEWS */}
+              <td className="p-3">
 
-      ))}
+                {g.views}
 
-    </tbody>
+              </td>
 
-  </table>
+              {/* MAX */}
+              <td className="p-3">
 
-</div>
+                {g.max_views}
 
-)
+              </td>
+
+              {/* STATUS */}
+              <td className="p-3">
+
+                {g.active ? (
+
+                  <span className="text-green-600 font-medium">
+
+                    فعال
+
+                  </span>
+
+                ) : (
+
+                  <span className="text-red-600 font-medium">
+
+                    غیرفعال
+
+                  </span>
+
+                )}
+
+              </td>
+
+              {/* ACTIONS */}
+              <td className="p-3 flex flex-wrap gap-2">
+
+                {/* OPEN */}
+                <a
+                  href={`/guest/${g.token}`}
+                  target="_blank"
+                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                >
+                  باز کردن
+                </a>
+
+                {/* COPY */}
+                <button
+                  onClick={() =>
+                    copyLink(g.token)
+                  }
+                  className="bg-gray-600 text-white px-2 py-1 rounded text-xs"
+                >
+                  کپی لینک
+                </button>
+
+                {/* EDIT */}
+                <button
+                  onClick={() =>
+                    editGuest(g)
+                  }
+                  className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+                >
+                  ویرایش
+                </button>
+
+                {/* RESET */}
+                <button
+                  onClick={() =>
+                    resetViews(
+                      g.id,
+                      g.token
+                    )
+                  }
+                  className="bg-indigo-600 text-white px-2 py-1 rounded text-xs"
+                >
+                  ریست
+                </button>
+
+                {/* BLOCK */}
+                <button
+                  onClick={() =>
+                    toggleGuest(
+                      g.id,
+                      g.active
+                    )
+                  }
+                  className={`px-2 py-1 rounded text-xs text-white ${
+                    g.active
+                      ? "bg-orange-600"
+                      : "bg-green-600"
+                  }`}
+                >
+                  {g.active
+                    ? "مسدود"
+                    : "فعال"}
+                </button>
+
+                {/* DELETE */}
+                <button
+                  onClick={() =>
+                    deleteGuest(g.id)
+                  }
+                  className="bg-red-600 text-white px-2 py-1 rounded text-xs"
+                >
+                  حذف
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  )
 }
