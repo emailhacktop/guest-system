@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 import Sidebar from "../components/Sidebar"
 import Header from "../components/Header"
@@ -13,7 +14,7 @@ createGuest
 } from "@/lib/api"
 
 export default function Dashboard() {
-
+const router = useRouter()
 // ========================
 // STATE
 // ========================
@@ -66,6 +67,16 @@ try {
 // FIRST LOAD
 // ========================
 useEffect(() => {
+
+const token =
+  localStorage.getItem("admin-token")
+
+if (!token) {
+
+  router.push("/login")
+
+  return
+}
 
 loadGuests()
 
