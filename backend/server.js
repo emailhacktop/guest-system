@@ -342,4 +342,54 @@ app.delete("/api/guest/:id", async (req, res) => {
   })
 })
 
+//
+// ========================
+// CHANGE ADMIN PASSWORD
+// ========================
+//
+
+app.post(
+  "/api/change-password",
+  async (req, res) => {
+
+    const {
+      oldPassword,
+      newPassword
+    } = req.body
+
+    // بررسی رمز فعلی
+    if (
+      oldPassword !==
+      process.env.ADMIN_PASSWORD
+    ) {
+
+      return res.json({
+        success: false,
+        message: "رمز فعلی اشتباه است"
+      })
+    }
+
+    // اعتبار رمز جدید
+    if (
+      !newPassword ||
+      newPassword.length < 4
+    ) {
+
+      return res.json({
+        success: false,
+        message:
+          "رمز جدید حداقل 4 کاراکتر باشد"
+      })
+    }
+
+    // تغییر در حافظه
+    process.env.ADMIN_PASSWORD =
+      newPassword
+
+    return res.json({
+      success: true
+    })
+  }
+)
+
 app.listen(3001, () => console.log("Server running"))
