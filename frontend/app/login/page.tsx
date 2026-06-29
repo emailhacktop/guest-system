@@ -15,7 +15,7 @@ export default function Login() {
     const data = await res.json()
 
     if (data.success) {
-      localStorage.setItem("admin", "true")
+      localStorage.setItem("admin-token", data.token)
       window.location.href = "/dashboard"
     } else {
       alert("Wrong password")

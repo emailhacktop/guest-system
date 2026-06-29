@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken"
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
@@ -16,22 +17,90 @@ const supabase = createClient(
 )
 
 // ========================
-// LOGIN (SIMPLE ADMIN)
+// JWT VERIFY
 // ========================
-app.post("/api/login", (req, res) => {
-  const { password } = req.body
+function verifyToken(
+  req,
+  res,
+  next
+) {
 
-  if (password === process.env.ADMIN_PASSWORD) {
-    return res.json({ success: true, token: "admin-token" })
+  const auth =
+    req.headers.authorization
+
+  if (!auth) {
+
+    return res.status(401).json({
+      success: false,
+      message: "No token"
+    })
   }
 
-  return res.status(401).json({ success: false })
+  const token =
+    auth.split(" ")[1]
+
+  try {
+
+    jwt.verify(
+      token,
+      process.env.JWT_SECRET || "secret123"
+    )
+
+    next()
+
+  } catch {
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    })
+  }
+}
+
+// ========================
+// LOGIN JWT
+// ========================
+app.post("/api/login", (req, res) => {
+
+  const { password } = req.body
+
+  if (
+    password !== process.env.ADMIN_PASSWORD
+  ) {
+
+    return res.status(401).json({
+      success: false,
+      message: "Wrong password"
+    })
+  }
+
+  // ساخت JWT
+  const token = jwt.sign(
+
+    {
+      role: "admin"
+    },
+
+    process.env.JWT_SECRET || "secret123",
+
+    {
+      expiresIn: "7d"
+    }
+  )
+
+  res.json({
+    success: true,
+    token
+  })
 })
 
 // ========================
 // GET ALL GUESTS
 // ========================
-app.get("/api/guests", async (req, res) => {
+app.get(
+  "/api/guests",
+  verifyToken,
+  async (req, res) => {
   const { data, error } = await supabase
     .from("guests")
     .select("*")
@@ -44,7 +113,10 @@ app.get("/api/guests", async (req, res) => {
 // ========================
 // CREATE GUEST
 // ========================
-app.post("/api/guest", async (req, res) => {
+app.post(
+  "/api/guest",
+  verifyToken,
+  async (req, res) => {
 
 const { name, max_views } = req.body
 
@@ -140,7 +212,10 @@ res.json(data[0])
 // ========================
 // EDIT GUEST
 // ========================
-app.put("/api/guest/:id", async (req, res) => {
+app.put(
+  "/api/guest/:id",
+  verifyToken,
+  async (req, res) => {
   const { id } = req.params
   const { name, max_views } = req.body
 
@@ -324,7 +399,10 @@ app.get("/api/guests/export", async (req, res) => {
 // ========================
 // DELETE GUEST
 // ========================
-app.delete("/api/guest/:id", async (req, res) => {
+app.delete(
+  "/api/guest/:id",
+  verifyToken,
+  async (req, res) => {
 
   const { id } = req.params
 
