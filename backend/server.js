@@ -252,25 +252,52 @@ app.get("/api/guest/:token", async (req, res) => {
 // INCREASE VIEW
 // ========================
 app.post("/api/guest/view/:token", async (req, res) => {
+
   const { token } = req.params
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("guests")
     .select("*")
     .eq("token", token)
     .single()
 
-  if (!data) return res.status(404).json({ error: "not found" })
+  if (error || !data) {
 
-  if (data.views >= data.max_views)
-    return res.status(403).json({ error: "limit reached" })
+    return res.status(404).json({
+      success: false
+    })
+  }
+
+  // غیرفعال
+  if (!data.active) {
+
+    return res.status(403).json({
+      success: false
+    })
+  }
+
+  // پایان بازدید
+  if (data.views >= data.max_views) {
+
+    return res.status(403).json({
+      success: false
+    })
+  }
+
+  // افزایش بازدید
+  const newViews = data.views + 1
 
   await supabase
     .from("guests")
-    .update({ views: data.views + 1 })
+    .update({
+      views: newViews
+    })
     .eq("token", token)
 
-  res.json({ success: true })
+  res.json({
+    success: true,
+    views: newViews
+  })
 })
 
 // ========================
