@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [name, setName] = useState("")
   const [maxViews, setMaxViews] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
 
   // ⭐ SEARCH STATE (این مهمه)
   const [search, setSearch] = useState("")
@@ -40,28 +41,77 @@ export default function Dashboard() {
   // CREATE GUEST
   // ========================
   async function handleCreate() {
-    if (!name.trim()) return
 
-    try {
-      setLoading(true)
+  // خالی نبودن نام
+  if (!name.trim()) {
 
-      await createGuest({
-        name: name.trim(),
-        max_views: Number(maxViews)
-      })
+  setMessage("نام مهمان الزامی است")
 
-      setName("")
-      setMaxViews(1)
+  return
 
-      await loadGuests()
-
-    } catch (error) {
-      console.error("createGuest error:", error)
-    } finally {
-      setLoading(false)
-    }
   }
 
+  // محدودیت بازدید
+  if (
+  maxViews < 1 ||
+  maxViews > 999
+  ) {
+
+  setMessage(
+    "حداکثر بازدید باید بین 1 تا 999 باشد"
+  )
+
+  return
+
+  }
+
+  try {
+
+  setLoading(true)
+
+  setMessage("")
+
+  const result =
+    await createGuest({
+      name,
+      max_views: maxViews
+    })
+
+  // خطای بک‌اند
+  if (result?.success === false) {
+
+    setMessage(result.message)
+
+    return
+  }
+
+  // موفق
+  setMessage("مهمان ساخته شد")
+
+  setName("")
+
+  setMaxViews(1)
+
+  await loadGuests()
+
+  } catch (error) {
+
+  console.error(
+    "createGuest error:",
+    error
+  )
+
+  setMessage(
+    "خطا در ساخت مهمان"
+  )
+
+  } finally {
+
+  setLoading(false)
+
+  }
+  }
+  
   // ========================
   // ⭐ FILTER (SEARCH LOGIC)
   // ========================
@@ -113,6 +163,16 @@ export default function Dashboard() {
             >
               {loading ? "در حال ساخت..." : "ساخت مهمان"}
             </button>
+             {message && (
+
+            <div className="text-sm text-red-600 mt-2">
+
+            {message}
+
+            </div>
+
+             )}
+
           </div>
 
           {/* ⭐ SEARCH INPUT (این هم مهمه) */}
