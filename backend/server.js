@@ -45,17 +45,96 @@ app.get("/api/guests", async (req, res) => {
 // CREATE GUEST
 // ========================
 app.post("/api/guest", async (req, res) => {
-  const { name, max_views } = req.body
 
-  const token = Math.random().toString(36).substring(2, 12)
+const { name, max_views } = req.body
 
-  const { data, error } = await supabase
-    .from("guests")
-    .insert([{ name, max_views, views: 0, token, active: true }])
-    .select()
+// ========================
+// VALIDATION
+// ========================
 
-  if (error) return res.status(500).json(error)
-  res.json(data[0])
+if (!name || name.trim() === "") {
+
+return res.status(400).json({
+  success: false,
+  message: "نام مهمان الزامی است"
+})
+
+}
+
+// محدودیت بازدید
+if (
+!max_views ||
+max_views < 1 ||
+max_views > 999
+) {
+
+return res.status(400).json({
+  success: false,
+  message:
+    "حداکثر بازدید باید بین 1 تا 999 باشد"
+})
+
+}
+
+// ========================
+// DUPLICATE CHECK
+// ========================
+
+const { data: existing } =
+await supabase
+.from("guests")
+.select("*")
+.eq("name", name.trim())
+.maybeSingle()
+
+if (existing) {
+
+return res.status(400).json({
+  success: false,
+  message:
+    "این مهمان قبلاً ثبت شده است"
+})
+
+}
+
+// ========================
+// TOKEN
+// ========================
+
+const token =
+Math.random()
+.toString(36)
+.substring(2, 12)
+
+// ========================
+// INSERT
+// ========================
+
+const { data, error } =
+await supabase
+.from("guests")
+.insert([
+{
+name: name.trim(),
+max_views,
+views: 0,
+token,
+active: true
+}
+])
+.select()
+
+if (error) {
+
+return res.status(500).json({
+  success: false,
+  message:
+    "Failed to create guest"
+})
+
+}
+
+res.json(data[0])
 })
 
 // ========================
