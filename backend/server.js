@@ -8,9 +8,13 @@ import xlsx from "xlsx"
 dotenv.config()
 
 const app = express()
+
 app.use(cors())
 app.use(express.json())
 
+// ========================
+// SUPABASE
+// ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
@@ -43,7 +47,7 @@ function verifyToken(
 
     jwt.verify(
       token,
-      process.env.JWT_SECRET || "secret123"
+      process.env.JWT_SECRET
     )
 
     next()
@@ -58,14 +62,15 @@ function verifyToken(
 }
 
 // ========================
-// LOGIN JWT
+// LOGIN
 // ========================
 app.post("/api/login", (req, res) => {
 
   const { password } = req.body
 
   if (
-    password !== process.env.ADMIN_PASSWORD
+    password !==
+    process.env.ADMIN_PASSWORD
   ) {
 
     return res.status(401).json({
@@ -74,14 +79,13 @@ app.post("/api/login", (req, res) => {
     })
   }
 
-  // ساخت JWT
   const token = jwt.sign(
 
     {
       role: "admin"
     },
 
-    process.env.JWT_SECRET || "secret123",
+    process.env.JWT_SECRET,
 
     {
       expiresIn: "7d"
@@ -101,14 +105,29 @@ app.get(
   "/api/guests",
   verifyToken,
   async (req, res) => {
-  const { data, error } = await supabase
-    .from("guests")
-    .select("*")
-    .order("created_at", { ascending: false })
 
-  if (error) return res.status(500).json(error)
-  res.json(data)
-})
+    const { data, error } =
+      await supabase
+        .from("guests")
+        .select("*")
+        .order(
+          "name",
+          {
+            ascending: true
+          }
+        )
+
+    if (error) {
+
+      return res.status(500).json({
+        success: false,
+        error
+      })
+    }
+
+    res.json(data)
+  }
+)
 
 // ========================
 // CREATE GUEST
@@ -118,96 +137,96 @@ app.post(
   verifyToken,
   async (req, res) => {
 
-const { name, max_views } = req.body
+    const {
+      name,
+      max_views
+    } = req.body
 
-// ========================
-// VALIDATION
-// ========================
+    // validation
+    if (
+      !name ||
+      name.trim() === ""
+    ) {
 
-if (!name || name.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "نام مهمان الزامی است"
+      })
+    }
 
-return res.status(400).json({
-  success: false,
-  message: "نام مهمان الزامی است"
-})
+    if (
+      !max_views ||
+      max_views < 1 ||
+      max_views > 999
+    ) {
 
-}
+      return res.status(400).json({
+        success: false,
+        message:
+          "حداکثر بازدید باید بین 1 تا 999 باشد"
+      })
+    }
 
-// محدودیت بازدید
-if (
-!max_views ||
-max_views < 1 ||
-max_views > 999
-) {
+    // duplicate
+    const {
+      data: existing
+    } = await supabase
+      .from("guests")
+      .select("*")
+      .eq(
+        "name",
+        name.trim()
+      )
+      .maybeSingle()
 
-return res.status(400).json({
-  success: false,
-  message:
-    "حداکثر بازدید باید بین 1 تا 999 باشد"
-})
+    if (existing) {
 
-}
+      return res.status(400).json({
+        success: false,
+        message:
+          "این مهمان قبلاً ثبت شده است"
+      })
+    }
 
-// ========================
-// DUPLICATE CHECK
-// ========================
+    // token
+    const token =
+      Math.random()
+        .toString(36)
+        .substring(2, 12)
 
-const { data: existing } =
-await supabase
-.from("guests")
-.select("*")
-.eq("name", name.trim())
-.maybeSingle()
+    // insert
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .insert([
+        {
+          name:
+            name.trim(),
+          max_views,
+          views: 0,
+          token,
+          active: true
+        }
+      ])
+      .select()
 
-if (existing) {
+    if (error) {
 
-return res.status(400).json({
-  success: false,
-  message:
-    "این مهمان قبلاً ثبت شده است"
-})
+      return res.status(500).json({
+        success: false,
+        error
+      })
+    }
 
-}
-
-// ========================
-// TOKEN
-// ========================
-
-const token =
-Math.random()
-.toString(36)
-.substring(2, 12)
-
-// ========================
-// INSERT
-// ========================
-
-const { data, error } =
-await supabase
-.from("guests")
-.insert([
-{
-name: name.trim(),
-max_views,
-views: 0,
-token,
-active: true
-}
-])
-.select()
-
-if (error) {
-
-return res.status(500).json({
-  success: false,
-  message:
-    "Failed to create guest"
-})
-
-}
-
-res.json(data[0])
-})
+    res.json({
+      success: true,
+      guest: data[0]
+    })
+  }
+)
 
 // ========================
 // EDIT GUEST
@@ -216,185 +235,67 @@ app.put(
   "/api/guest/:id",
   verifyToken,
   async (req, res) => {
-  const { id } = req.params
-  const { name, max_views } = req.body
 
-  const { data, error } = await supabase
-    .from("guests")
-    .update({ name, max_views })
-    .eq("id", id)
-    .select()
+    const { id } =
+      req.params
 
-  if (error) return res.status(500).json(error)
-  res.json(data[0])
-})
+    const {
+      name,
+      max_views
+    } = req.body
 
-// ========================
-// BLOCK / UNBLOCK
-// ========================
-app.patch("/api/guest/block/:id", async (req, res) => {
-  const { id } = req.params
+    // validation
+    if (
+      !name ||
+      name.trim() === ""
+    ) {
 
-  const { data, error } = await supabase
-    .from("guests")
-    .update({ active: false })
-    .eq("id", id)
+      return res.json({
+        success: false,
+        message:
+          "نام مهمان الزامی است"
+      })
+    }
 
-  if (error) return res.status(500).json(error)
-  res.json({ success: true })
-})
+    if (
+      max_views < 1 ||
+      max_views > 999
+    ) {
 
-app.patch("/api/guest/unblock/:id", async (req, res) => {
-  const { id } = req.params
+      return res.json({
+        success: false,
+        message:
+          "حداکثر بازدید باید بین 1 تا 999 باشد"
+      })
+    }
 
-  const { data, error } = await supabase
-    .from("guests")
-    .update({ active: true })
-    .eq("id", id)
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .update({
+        name:
+          name.trim(),
+        max_views
+      })
+      .eq("id", id)
+      .select()
 
-  if (error) return res.status(500).json(error)
-  res.json({ success: true })
-})
+    if (error) {
 
-// ========================
-// RESET VIEWS
-// ========================
-app.post("/api/guest/reset/:id", async (req, res) => {
-  const { id } = req.params
+      return res.json({
+        success: false,
+        error
+      })
+    }
 
-  const { data, error } = await supabase
-    .from("guests")
-    .update({ views: 0 })
-    .eq("id", id)
-
-  if (error) return res.status(500).json(error)
-  res.json({ success: true })
-})
-// ========================
-// TOGGLE ACTIVE
-// ========================
-app.post("/api/guest/toggle/:id", async (req, res) => {
-
-  const { id } = req.params
-  const { active } = req.body
-
-  const { error } = await supabase
-    .from("guests")
-    .update({ active })
-    .eq("id", id)
-
-  if (error) {
-    return res.status(500).json(error)
-  }
-
-  res.json({
-    success: true
-  })
-})
-
-// ========================
-// GET GUEST BY TOKEN
-// ========================
-app.get("/api/guest/:token", async (req, res) => {
-
-  const { token } = req.params
-
-  const { data, error } = await supabase
-    .from("guests")
-    .select("*")
-    .eq("token", token)
-    .single()
-
-  if (error || !data) {
-    return res.status(404).json({
-      success: false,
-      message: "Guest not found"
+    res.json({
+      success: true,
+      guest: data[0]
     })
   }
-
-  // اگر غیرفعال بود
-  if (!data.active) {
-    return res.status(403).json({
-      success: false,
-      message: "Link blocked"
-    })
-  }
-
-  res.json(data)
-})
-
-// ========================
-// INCREASE VIEW
-// ========================
-app.post("/api/guest/view/:token", async (req, res) => {
-
-  const { token } = req.params
-
-  const { data, error } = await supabase
-    .from("guests")
-    .select("*")
-    .eq("token", token)
-    .single()
-
-  if (error || !data) {
-
-    return res.status(404).json({
-      success: false
-    })
-  }
-
-  // غیرفعال
-  if (!data.active) {
-
-    return res.status(403).json({
-      success: false
-    })
-  }
-
-  // پایان بازدید
-  if (data.views >= data.max_views) {
-
-    return res.status(403).json({
-      success: false
-    })
-  }
-
-  // افزایش بازدید
-  const newViews = data.views + 1
-
-  await supabase
-    .from("guests")
-    .update({
-      views: newViews
-    })
-    .eq("token", token)
-
-  res.json({
-    success: true,
-    views: newViews
-  })
-})
-
-// ========================
-// EXPORT EXCEL
-// ========================
-app.get("/api/guests/export", async (req, res) => {
-  const { data } = await supabase.from("guests").select("*")
-
-  const wb = xlsx.utils.book_new()
-  const ws = xlsx.utils.json_to_sheet(data)
-
-  xlsx.utils.book_append_sheet(wb, ws, "guests")
-
-  const file = xlsx.write(wb, { type: "buffer", bookType: "xlsx" })
-
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=guests.xlsx"
-  )
-
-  res.send(file)
-})
+)
 
 // ========================
 // DELETE GUEST
@@ -404,30 +305,254 @@ app.delete(
   verifyToken,
   async (req, res) => {
 
-  const { id } = req.params
+    const { id } =
+      req.params
 
-  const { error } = await supabase
-    .from("guests")
-    .delete()
-    .eq("id", id)
+    const { error } =
+      await supabase
+        .from("guests")
+        .delete()
+        .eq("id", id)
 
-  if (error) {
-    return res.status(500).json(error)
+    if (error) {
+
+      return res.json({
+        success: false,
+        error
+      })
+    }
+
+    res.json({
+      success: true
+    })
   }
+)
 
-  res.json({
-    success: true
-  })
-})
-
-//
 // ========================
-// CHANGE ADMIN PASSWORD
+// RESET VIEWS
 // ========================
-//
+app.post(
+  "/api/guest/reset/:id",
+  verifyToken,
+  async (req, res) => {
 
+    const { id } =
+      req.params
+
+    const { error } =
+      await supabase
+        .from("guests")
+        .update({
+          views: 0
+        })
+        .eq("id", id)
+
+    if (error) {
+
+      return res.json({
+        success: false,
+        error
+      })
+    }
+
+    res.json({
+      success: true
+    })
+  }
+)
+
+// ========================
+// TOGGLE ACTIVE
+// ========================
+app.post(
+  "/api/guest/toggle/:id",
+  verifyToken,
+  async (req, res) => {
+
+    const { id } =
+      req.params
+
+    const { active } =
+      req.body
+
+    const { error } =
+      await supabase
+        .from("guests")
+        .update({
+          active
+        })
+        .eq("id", id)
+
+    if (error) {
+
+      return res.json({
+        success: false,
+        error
+      })
+    }
+
+    res.json({
+      success: true
+    })
+  }
+)
+
+// ========================
+// GET GUEST BY TOKEN
+// ========================
+app.get(
+  "/api/guest/:token",
+  async (req, res) => {
+
+    const { token } =
+      req.params
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .select("*")
+      .eq("token", token)
+      .single()
+
+    if (
+      error ||
+      !data
+    ) {
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Guest not found"
+      })
+    }
+
+    if (!data.active) {
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "Link blocked"
+      })
+    }
+
+    res.json(data)
+  }
+)
+
+// ========================
+// INCREASE VIEW
+// ========================
+app.post(
+  "/api/guest/view/:token",
+  async (req, res) => {
+
+    const { token } =
+      req.params
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .select("*")
+      .eq("token", token)
+      .single()
+
+    if (
+      error ||
+      !data
+    ) {
+
+      return res.status(404).json({
+        success: false
+      })
+    }
+
+    if (!data.active) {
+
+      return res.status(403).json({
+        success: false
+      })
+    }
+
+    if (
+      data.views >=
+      data.max_views
+    ) {
+
+      return res.status(403).json({
+        success: false
+      })
+    }
+
+    const newViews =
+      data.views + 1
+
+    await supabase
+      .from("guests")
+      .update({
+        views: newViews
+      })
+      .eq("token", token)
+
+    res.json({
+      success: true,
+      views: newViews
+    })
+  }
+)
+
+// ========================
+// EXPORT EXCEL
+// ========================
+app.get(
+  "/api/guests/export",
+  verifyToken,
+  async (req, res) => {
+
+    const { data } =
+      await supabase
+        .from("guests")
+        .select("*")
+
+    const wb =
+      xlsx.utils.book_new()
+
+    const ws =
+      xlsx.utils.json_to_sheet(data)
+
+    xlsx.utils.book_append_sheet(
+      wb,
+      ws,
+      "guests"
+    )
+
+    const file =
+      xlsx.write(
+        wb,
+        {
+          type: "buffer",
+          bookType: "xlsx"
+        }
+      )
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=guests.xlsx"
+    )
+
+    res.send(file)
+  }
+)
+
+// ========================
+// CHANGE PASSWORD
+// ========================
 app.post(
   "/api/change-password",
+  verifyToken,
   async (req, res) => {
 
     const {
@@ -435,7 +560,7 @@ app.post(
       newPassword
     } = req.body
 
-    // بررسی رمز فعلی
+    // check old
     if (
       oldPassword !==
       process.env.ADMIN_PASSWORD
@@ -443,11 +568,12 @@ app.post(
 
       return res.json({
         success: false,
-        message: "رمز فعلی اشتباه است"
+        message:
+          "رمز فعلی اشتباه است"
       })
     }
 
-    // اعتبار رمز جدید
+    // validation
     if (
       !newPassword ||
       newPassword.length < 4
@@ -460,14 +586,25 @@ app.post(
       })
     }
 
-    // تغییر در حافظه
+    // temp memory change
     process.env.ADMIN_PASSWORD =
       newPassword
 
-    return res.json({
+    res.json({
       success: true
     })
   }
 )
 
-app.listen(3001, () => console.log("Server running"))
+// ========================
+// START SERVER
+// ========================
+app.listen(
+  3001,
+  () => {
+
+    console.log(
+      "Server running on port 3001"
+    )
+  }
+)
