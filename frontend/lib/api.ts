@@ -51,7 +51,9 @@ export async function getGuests() {
         {
           headers: {
             ...authHeaders()
-          }
+          },
+
+          cache: "no-store"
         }
       )
 
