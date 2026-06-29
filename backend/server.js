@@ -339,13 +339,16 @@ app.post(
     const { id } =
       req.params
 
-    const { error } =
-      await supabase
-        .from("guests")
-        .update({
-          views: 0
-        })
-        .eq("id", id)
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .update({
+        views: 0
+      })
+      .eq("id", id)
+      .select()
 
     if (error) {
 
@@ -356,7 +359,8 @@ app.post(
     }
 
     res.json({
-      success: true
+      success: true,
+      guest: data[0]
     })
   }
 )
@@ -375,13 +379,14 @@ app.post(
     const { active } =
       req.body
 
-    const { error } =
-      await supabase
-        .from("guests")
-        .update({
-          active
-        })
-        .eq("id", id)
+    const {
+      data,
+      error
+    } = await supabase
+      .from("guests")
+      .update({ active })
+      .eq("id", id)
+      .select()
 
     if (error) {
 
@@ -392,7 +397,8 @@ app.post(
     }
 
     res.json({
-      success: true
+      success: true,
+      guest: data[0]
     })
   }
 )
