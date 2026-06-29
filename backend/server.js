@@ -139,6 +139,37 @@ app.post("/api/guest/toggle/:id", async (req, res) => {
 })
 
 // ========================
+// GET GUEST BY TOKEN
+// ========================
+app.get("/api/guest/:token", async (req, res) => {
+
+  const { token } = req.params
+
+  const { data, error } = await supabase
+    .from("guests")
+    .select("*")
+    .eq("token", token)
+    .single()
+
+  if (error || !data) {
+    return res.status(404).json({
+      success: false,
+      message: "Guest not found"
+    })
+  }
+
+  // اگر غیرفعال بود
+  if (!data.active) {
+    return res.status(403).json({
+      success: false,
+      message: "Link blocked"
+    })
+  }
+
+  res.json(data)
+})
+
+// ========================
 // INCREASE VIEW
 // ========================
 app.post("/api/guest/view/:token", async (req, res) => {
@@ -182,6 +213,27 @@ app.get("/api/guests/export", async (req, res) => {
   )
 
   res.send(file)
+})
+
+// ========================
+// DELETE GUEST
+// ========================
+app.delete("/api/guest/:id", async (req, res) => {
+
+  const { id } = req.params
+
+  const { error } = await supabase
+    .from("guests")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+    return res.status(500).json(error)
+  }
+
+  res.json({
+    success: true
+  })
 })
 
 app.listen(3001, () => console.log("Server running"))
