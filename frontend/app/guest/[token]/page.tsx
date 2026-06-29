@@ -1,231 +1,259 @@
 'use client'
 
+import { use } from "react"
 import { useEffect, useState } from "react"
-import { getGuestByToken, increaseView } from "@/lib/api"
+import {
+getGuestByToken,
+increaseView
+} from "@/lib/api"
 
-export default function GuestPage({ params }: any) {
+type ParamsType = Promise<{
+token: string
+}>
 
-  // ========================
-  // STATE
-  // ========================
-  const [guest, setGuest] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [blocked, setBlocked] = useState(false)
+export default function GuestPage({
+params,
+}: {
+params: ParamsType
+}) {
 
-  // ========================
-  // SESSION KEY
-  // ========================
-  const VIEW_KEY = `view_${params.token}`
+const { token } = use(params)
 
-  // ========================
-  // LOAD GUEST DATA
-  // ========================
-  async function loadGuest() {
+const [guest, setGuest] = useState<any>(null)
 
-    try {
+const [loading, setLoading] =
+useState(true)
 
-      const data = await getGuestByToken(params.token)
+const [error, setError] =
+useState<string | null>(null)
 
-      // اگر وجود نداشت
-      if (!data || data.success === false) {
+const [blocked, setBlocked] =
+useState(false)
 
-        // لینک منقضی شده
-        if (data?.message === "Link expired") {
+// FIXED
+const VIEW_KEY = `view_${token}`
 
-          setBlocked(true)
+// ========================
+// LOAD GUEST
+// ========================
+async function loadGuest() {
 
-          setError("لینک منقضی شده")
+const data =
+  await getGuestByToken(token)
 
-          return null
-        }
+if (
+  !data ||
+  data.success === false
+) {
 
-        // مهمان پیدا نشد
-        setError("Guest not found")
+  if (
+    data?.message ===
+    "Link expired"
+  ) {
 
-        return null
-      }
+    setError("لینک منقضی شده")
 
-      // اگر active=false
-      if (!data.active) {
+  } else if (
+    data?.message ===
+    "Link blocked"
+  ) {
 
-        setBlocked(true)
+    setError("لینک غیرفعال شده")
 
-        setError("لینک غیرفعال شده")
+  } else {
 
-        return null
-      }
-
-      // ذخیره اطلاعات
-      setGuest(data)
-
-      // بررسی محدودیت
-      const isBlocked =
-        data.views >= data.max_views
-
-      setBlocked(isBlocked)
-
-      return data
-
-    } catch (err) {
-
-      console.error(
-        "Load guest error:",
-        err
-      )
-
-      setError("Failed to load guest")
-
-      return null
-
-    } finally {
-
-      setLoading(false)
-    }
+    setError("Guest not found")
   }
 
-  // ========================
-  // INCREASE VIEW
-  // ========================
-  async function addView() {
+  return null
+}
 
-    try {
+if (!data.active) {
 
-      await increaseView(params.token)
+  setBlocked(true)
 
-    } catch (err) {
+  setError("لینک غیرفعال شده")
 
-      console.error(
-        "Increase view error:",
-        err
-      )
-    }
-  }
+  return null
+}
 
-  // ========================
-  // MAIN FLOW
-  // ========================
-  useEffect(() => {
+setGuest(data)
 
-    const run = async () => {
+setBlocked(
+  data.views >= data.max_views
+)
 
-      // load data
-      const data = await loadGuest()
+return data
 
-      // اگر معتبر بود
+}
+
+// ========================
+// INCREASE VIEW
+// ========================
+async function addView() {
+
+await increaseView(token)
+
+}
+
+// ========================
+// FLOW
+// ========================
+useEffect(() => {
+
+const run = async () => {
+
+  setLoading(true)
+
+  setError(null)
+
+  setGuest(null)
+
+  setBlocked(false)
+
+  try {
+
+    const data =
+      await loadGuest()
+
+    if (
+      data &&
+      data.active
+    ) {
+
+      const alreadyViewed =
+        localStorage.getItem(
+          VIEW_KEY
+        )
+
       if (
-        data &&
-        data.active
+        !alreadyViewed &&
+        data.views < data.max_views
       ) {
 
-        const alreadyViewed =
-          localStorage.getItem(VIEW_KEY)
+        await addView()
 
-        // جلوگیری از refresh abuse
-        if (
-          !alreadyViewed &&
-          data.views < data.max_views
-        ) {
+        localStorage.setItem(
+          VIEW_KEY,
+          "true"
+        )
 
-          await addView()
+        const updated =
+          await loadGuest()
 
-          localStorage.setItem(
-            VIEW_KEY,
-            "true"
+        if (updated) {
+
+          setBlocked(
+            updated.views >=
+            updated.max_views
           )
         }
       }
-
-      // sync نهایی
-      await loadGuest()
     }
 
-    run()
+  } catch (err) {
 
-  }, [params.token])
-
-  // ========================
-  // LOADING
-  // ========================
-  if (loading) {
-
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
+    console.error(
+      "Load guest error:",
+      err
     )
-  }
 
-  // ========================
-  // ERROR
-  // ========================
-  if (error || !guest) {
-
-    return (
-      <div className="p-10">
-
-        <div className="bg-red-100 text-red-700 p-5 rounded">
-
-          {error || "Guest not found"}
-
-        </div>
-
-      </div>
+    setError(
+      "Failed to load guest"
     )
+
+  } finally {
+
+    setLoading(false)
   }
+}
 
-  // ========================
-  // UI
-  // ========================
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+run()
 
-      <div className="bg-white shadow-xl rounded-xl p-10 w-full max-w-xl space-y-5">
+}, [token])
 
-        {/* NAME */}
-        <h1 className="text-4xl font-bold text-center">
+// ========================
+// LOADING
+// ========================
+if (loading) {
 
-          {guest.name}
+return (
+  <div className="p-10">
+    Loading...
+  </div>
+)
 
-        </h1>
+}
 
-        {/* VIEWS */}
-        <div className="text-center text-gray-700 text-lg">
+// ========================
+// ERROR
+// ========================
+if (error || !guest) {
 
-          👁 بازدید:
-          {" "}
-          {guest.views}
+return (
+  <div className="p-10">
 
-        </div>
+    <div className="bg-red-100 text-red-700 p-5 rounded">
 
-        {/* MAX */}
-        <div className="text-center text-gray-700 text-lg">
+      {error || "Guest not found"}
 
-          🎯 حداکثر بازدید:
-          {" "}
-          {guest.max_views}
-
-        </div>
-
-        {/* STATUS */}
-        {blocked ? (
-
-          <div className="bg-red-100 text-red-700 p-4 rounded text-center font-bold">
-
-            🚫 لینک غیرفعال شده
-
-          </div>
-
-        ) : (
-
-          <div className="bg-green-100 text-green-700 p-4 rounded text-center font-bold">
-
-            ✅ لینک فعال است
-
-          </div>
-        )}
-
-      </div>
     </div>
-  )
+
+  </div>
+)
+
+}
+
+// ========================
+// UI
+// ========================
+return (
+<div className="min-h-screen bg-gray-100 flex items-center justify-center">
+
+  <div className="bg-white shadow-xl rounded-xl p-10 w-full max-w-xl space-y-5">
+
+    <h1 className="text-4xl font-bold text-center">
+
+      {guest.name}
+
+    </h1>
+
+    <div className="text-center text-gray-700 text-lg">
+
+      👁 بازدید:
+      {" "}
+      {guest.views}
+
+    </div>
+
+    <div className="text-center text-gray-700 text-lg">
+
+      🎯 حداکثر بازدید:
+      {" "}
+      {guest.max_views}
+
+    </div>
+
+    {blocked ? (
+
+      <div className="bg-red-100 text-red-700 p-4 rounded text-center font-bold">
+
+        🚫 لینک غیرفعال شده
+
+      </div>
+
+    ) : (
+
+      <div className="bg-green-100 text-green-700 p-4 rounded text-center font-bold">
+
+        ✅ لینک فعال است
+
+      </div>
+    )}
+
+  </div>
+
+</div>
+
+)
 }
