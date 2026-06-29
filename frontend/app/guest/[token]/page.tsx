@@ -31,7 +31,6 @@ const [blocked, setBlocked] =
 useState(false)
 
 // FIXED
-const VIEW_KEY = `view_${token}`
 
 // ========================
 // LOAD GUEST
@@ -118,36 +117,21 @@ const run = async () => {
 
     if (
       data &&
-      data.active
+      data.active &&
+      data.views < data.max_views
     ) {
 
-      const alreadyViewed =
-        localStorage.getItem(
-          VIEW_KEY
+      await addView()
+
+      const updated =
+        await loadGuest()
+
+      if (updated) {
+
+        setBlocked(
+          updated.views >=
+          updated.max_views
         )
-
-      if (
-        !alreadyViewed &&
-        data.views < data.max_views
-      ) {
-
-        await addView()
-
-        localStorage.setItem(
-          VIEW_KEY,
-          "true"
-        )
-
-        const updated =
-          await loadGuest()
-
-        if (updated) {
-
-          setBlocked(
-            updated.views >=
-            updated.max_views
-          )
-        }
       }
     }
 
