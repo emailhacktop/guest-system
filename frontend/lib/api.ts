@@ -1,4 +1,9 @@
-const BASE_URL = "http://localhost:3001/api"
+const BASE_URL =
+  "http://localhost:3001/api"
+
+// ========================
+// AUTH HEADER
+// ========================
 function authHeaders() {
 
   const token =
@@ -13,14 +18,54 @@ function authHeaders() {
 }
 
 // ========================
+// HANDLE RESPONSE
+// ========================
+async function handleResponse(
+  res: Response
+) {
+
+  const data =
+    await res.json()
+
+  if (!res.ok) {
+
+    throw new Error(
+      data?.message ||
+      "API Error"
+    )
+  }
+
+  return data
+}
+
+// ========================
 // GET ALL GUESTS
 // ========================
 export async function getGuests() {
+
   try {
-    const res = await fetch(`${BASE_URL}/guests`,{headers: authHeaders()})
-    return await res.json()
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guests`,
+        {
+          headers: {
+            ...authHeaders()
+          }
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
   } catch (error) {
-    console.error("getGuests error:", error)
+
+    console.error(
+      "getGuests error:",
+      error
+    )
+
     return []
   }
 }
@@ -28,37 +73,232 @@ export async function getGuests() {
 // ========================
 // CREATE GUEST
 // ========================
-export async function createGuest(data: {
-  name: string
-  max_views: number
-}) {
-  try {
-    const res = await fetch(`${BASE_URL}/guest`, {
-      method: "POST",
-      headers: {
-        "Content-Type":
-          "application/json",
-        ...authHeaders()
-      },
-      body: JSON.stringify(data)
-    })
+export async function createGuest(
+  data: {
+    name: string
+    max_views: number
+  }
+) {
 
-    return await res.json()
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            ...authHeaders()
+          },
+          body: JSON.stringify(data)
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
   } catch (error) {
-    console.error("createGuest error:", error)
-    return null
+
+    console.error(
+      "createGuest error:",
+      error
+    )
+
+    return {
+      success: false
+    }
+  }
+}
+
+// ========================
+// EDIT GUEST
+// ========================
+export async function editGuestApi(
+  id: string,
+  data: {
+    name: string
+    max_views: number
+  }
+) {
+
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              "application/json",
+            ...authHeaders()
+          },
+          body: JSON.stringify(data)
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
+  } catch (error) {
+
+    console.error(
+      "editGuestApi error:",
+      error
+    )
+
+    return {
+      success: false
+    }
+  }
+}
+
+// ========================
+// DELETE GUEST
+// ========================
+export async function deleteGuestApi(
+  id: string
+) {
+
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            ...authHeaders()
+          }
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
+  } catch (error) {
+
+    console.error(
+      "deleteGuestApi error:",
+      error
+    )
+
+    return {
+      success: false
+    }
+  }
+}
+
+// ========================
+// RESET VIEWS
+// ========================
+export async function resetViewsApi(
+  id: string
+) {
+
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/reset/${id}`,
+        {
+          method: "POST",
+          headers: {
+            ...authHeaders()
+          }
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
+  } catch (error) {
+
+    console.error(
+      "resetViewsApi error:",
+      error
+    )
+
+    return {
+      success: false
+    }
+  }
+}
+
+// ========================
+// TOGGLE ACTIVE
+// ========================
+export async function toggleGuestApi(
+  id: string,
+  active: boolean
+) {
+
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/toggle/${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            ...authHeaders()
+          },
+          body: JSON.stringify({
+            active
+          })
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
+  } catch (error) {
+
+    console.error(
+      "toggleGuestApi error:",
+      error
+    )
+
+    return {
+      success: false
+    }
   }
 }
 
 // ========================
 // GET GUEST BY TOKEN
 // ========================
-export async function getGuestByToken(token: string) {
+export async function getGuestByToken(
+  token: string
+) {
+
   try {
-    const res = await fetch(`${BASE_URL}/guest/${token}`)
-    return await res.json()
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/${token}`
+      )
+
+    return await handleResponse(
+      res
+    )
+
   } catch (error) {
-    console.error("getGuestByToken error:", error)
+
+    console.error(
+      "getGuestByToken error:",
+      error
+    )
+
     return null
   }
 }
@@ -66,15 +306,31 @@ export async function getGuestByToken(token: string) {
 // ========================
 // INCREASE VIEW
 // ========================
-export async function increaseView(token: string) {
-  try {
-    const res = await fetch(`${BASE_URL}/guest/view/${token}`, {
-      method: "POST"
-    })
+export async function increaseView(
+  token: string
+) {
 
-    return await res.json()
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/guest/view/${token}`,
+        {
+          method: "POST"
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
   } catch (error) {
-    console.error("increaseView error:", error)
+
+    console.error(
+      "increaseView error:",
+      error
+    )
+
     return null
   }
 }

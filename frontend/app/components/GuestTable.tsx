@@ -1,4 +1,12 @@
 'use client'
+
+import {
+  deleteGuestApi,
+  editGuestApi,
+  resetViewsApi,
+  toggleGuestApi
+} from "@/lib/api"
+
 type Guest = {
   id: string
   name: string
@@ -21,14 +29,18 @@ export default function GuestTable({
   // ========================
   // COPY LINK
   // ========================
-  async function copyLink(token: string) {
+  async function copyLink(
+    token: string
+  ) {
 
     const url =
       `http://localhost:3000/guest/${token}`
 
     try {
 
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(
+        url
+      )
 
       alert("لینک کپی شد")
 
@@ -42,9 +54,11 @@ export default function GuestTable({
   }
 
   // ========================
-  // DELETE GUEST
+  // DELETE
   // ========================
-  async function deleteGuest(id: string) {
+  async function deleteGuest(
+    id: string
+  ) {
 
     const ok =
       confirm("آیا حذف شود؟")
@@ -53,19 +67,10 @@ export default function GuestTable({
 
     try {
 
-      const res = await fetch(
-        `http://localhost:3001/api/guest/${id}`,
-        {
-          method: "DELETE"
-        }
-      )
-
       const data =
-        await res.json()
+        await deleteGuestApi(id)
 
-      console.log(data)
-
-      if (data.success) {
+      if (data?.success) {
 
         alert("حذف شد")
 
@@ -89,7 +94,7 @@ export default function GuestTable({
   }
 
   // ========================
-  // RESET VIEWS
+  // RESET
   // ========================
   async function resetViews(
     id: string,
@@ -98,24 +103,14 @@ export default function GuestTable({
 
     try {
 
-      const res = await fetch(
-        `http://localhost:3001/api/guest/reset/${id}`,
-        {
-          method: "POST"
-        }
-      )
-
       const data =
-        await res.json()
+        await resetViewsApi(id)
 
-      console.log(data)
+      if (data?.success) {
 
-      // پاک کردن سشن بازدید
-      localStorage.removeItem(
-        `view_${token}`
-      )
-
-      if (data.success) {
+        localStorage.removeItem(
+          `view_${token}`
+        )
 
         alert("بازدید ریست شد")
 
@@ -144,26 +139,13 @@ export default function GuestTable({
 
     try {
 
-      const res = await fetch(
-        `http://localhost:3001/api/guest/toggle/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            active: !active
-          })
-        }
-      )
-
       const data =
-        await res.json()
+        await toggleGuestApi(
+          id,
+          !active
+        )
 
-      console.log(data)
-
-      if (data.success) {
+      if (data?.success) {
 
         if (onRefresh) {
 
@@ -181,9 +163,11 @@ export default function GuestTable({
   }
 
   // ========================
-  // EDIT GUEST
+  // EDIT
   // ========================
-  async function editGuest(g: Guest) {
+  async function editGuest(
+    g: Guest
+  ) {
 
     const newName =
       prompt(
@@ -220,31 +204,21 @@ export default function GuestTable({
 
     try {
 
-      const res = await fetch(
-        `http://localhost:3001/api/guest/${g.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            name: newName.trim(),
-            max_views: maxValue
-          })
-        }
-      )
-
       const data =
-        await res.json()
+        await editGuestApi(
+          g.id,
+          {
+            name:
+              newName.trim(),
+            max_views:
+              maxValue
+          }
+        )
 
-      console.log(data)
-
-      if (data.success) {
+      if (data?.id) {
 
         alert("ویرایش شد")
 
-        // پاک کردن سشن بازدید
         localStorage.removeItem(
           `view_${g.token}`
         )
@@ -269,7 +243,7 @@ export default function GuestTable({
   }
 
   // ========================
-  // EMPTY STATE
+  // EMPTY
   // ========================
   if (
     !guests ||
@@ -277,6 +251,7 @@ export default function GuestTable({
   ) {
 
     return (
+
       <div className="bg-white p-4 rounded shadow text-gray-500">
 
         هیچ مهمانی وجود ندارد
@@ -286,7 +261,7 @@ export default function GuestTable({
   }
 
   // ========================
-  // MAIN UI
+  // UI
   // ========================
   return (
 
@@ -431,7 +406,7 @@ export default function GuestTable({
                   ریست
                 </button>
 
-                {/* BLOCK */}
+                {/* TOGGLE */}
                 <button
                   onClick={() =>
                     toggleGuest(
@@ -471,6 +446,5 @@ export default function GuestTable({
       </table>
 
     </div>
-
   )
 }
