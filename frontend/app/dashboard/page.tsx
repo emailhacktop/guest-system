@@ -135,7 +135,10 @@ export default function Dashboard() {
           </div>
 
           {/* TABLE (⭐ اینجا فرق مهمه) */}
-          <GuestTable guests={filteredGuests} />
+          <GuestTable
+           guests={filteredGuests}
+           onRefresh={loadGuests}
+          />
 
         </div>
       </div>

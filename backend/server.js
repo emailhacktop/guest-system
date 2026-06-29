@@ -2,24 +2,31 @@ import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
+import xlsx from "xlsx"
 
 dotenv.config()
 
 const app = express()
-
-// ========================
-// MIDDLEWARE
-// ========================
 app.use(cors())
 app.use(express.json())
 
-// ========================
-// SUPABASE CLIENT
-// ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 )
+
+// ========================
+// LOGIN (SIMPLE ADMIN)
+// ========================
+app.post("/api/login", (req, res) => {
+  const { password } = req.body
+
+  if (password === process.env.ADMIN_PASSWORD) {
+    return res.json({ success: true, token: "admin-token" })
+  }
+
+  return res.status(401).json({ success: false })
+})
 
 // ========================
 // GET ALL GUESTS
@@ -30,15 +37,8 @@ app.get("/api/guests", async (req, res) => {
     .select("*")
     .order("created_at", { ascending: false })
 
-  if (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch guests",
-      detail: error.message
-    })
-  }
-
-  return res.json(data)
+  if (error) return res.status(500).json(error)
+  res.json(data)
 })
 
 // ========================
@@ -47,60 +47,95 @@ app.get("/api/guests", async (req, res) => {
 app.post("/api/guest", async (req, res) => {
   const { name, max_views } = req.body
 
-  if (!name || !max_views) {
-    return res.status(400).json({
-      success: false,
-      message: "name and max_views are required"
-    })
-  }
-
   const token = Math.random().toString(36).substring(2, 12)
 
   const { data, error } = await supabase
     .from("guests")
-    .insert([
-      {
-        name,
-        max_views,
-        views: 0,
-        token,
-        active: true
-      }
-    ])
+    .insert([{ name, max_views, views: 0, token, active: true }])
     .select()
-    .single()
 
-  if (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create guest",
-      detail: error.message
-    })
-  }
-
-  return res.json(data)
+  if (error) return res.status(500).json(error)
+  res.json(data[0])
 })
 
 // ========================
-// GET GUEST BY TOKEN
+// EDIT GUEST
 // ========================
-app.get("/api/guest/:token", async (req, res) => {
-  const { token } = req.params
+app.put("/api/guest/:id", async (req, res) => {
+  const { id } = req.params
+  const { name, max_views } = req.body
 
   const { data, error } = await supabase
     .from("guests")
-    .select("*")
-    .eq("token", token)
-    .single()
+    .update({ name, max_views })
+    .eq("id", id)
+    .select()
 
-  if (error || !data) {
-    return res.status(404).json({
-      success: false,
-      message: "Guest not found"
-    })
+  if (error) return res.status(500).json(error)
+  res.json(data[0])
+})
+
+// ========================
+// BLOCK / UNBLOCK
+// ========================
+app.patch("/api/guest/block/:id", async (req, res) => {
+  const { id } = req.params
+
+  const { data, error } = await supabase
+    .from("guests")
+    .update({ active: false })
+    .eq("id", id)
+
+  if (error) return res.status(500).json(error)
+  res.json({ success: true })
+})
+
+app.patch("/api/guest/unblock/:id", async (req, res) => {
+  const { id } = req.params
+
+  const { data, error } = await supabase
+    .from("guests")
+    .update({ active: true })
+    .eq("id", id)
+
+  if (error) return res.status(500).json(error)
+  res.json({ success: true })
+})
+
+// ========================
+// RESET VIEWS
+// ========================
+app.post("/api/guest/reset/:id", async (req, res) => {
+  const { id } = req.params
+
+  const { data, error } = await supabase
+    .from("guests")
+    .update({ views: 0 })
+    .eq("id", id)
+
+  if (error) return res.status(500).json(error)
+  res.json({ success: true })
+})
+// ========================
+// TOGGLE ACTIVE
+// ========================
+app.post("/api/guest/toggle/:id", async (req, res) => {
+
+  const { id } = req.params
+  const { active } = req.body
+
+  const { error } = await supabase
+    .from("guests")
+    .update({ active })
+    .eq("id", id)
+
+  if (error) {
+    return res.status(500).json(error)
   }
 
-  return res.json(data)
+  res.json({
+    success: true
+  })
 })
 
 // ========================
@@ -109,68 +144,44 @@ app.get("/api/guest/:token", async (req, res) => {
 app.post("/api/guest/view/:token", async (req, res) => {
   const { token } = req.params
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("guests")
     .select("*")
     .eq("token", token)
     .single()
 
-  if (error || !data) {
-    return res.status(404).json({
-      success: false,
-      message: "Guest not found"
-    })
-  }
+  if (!data) return res.status(404).json({ error: "not found" })
 
-  if (data.views >= data.max_views) {
-    return res.status(403).json({
-      success: false,
-      message: "Max views reached"
-    })
-  }
+  if (data.views >= data.max_views)
+    return res.status(403).json({ error: "limit reached" })
 
-  const { error: updateError } = await supabase
+  await supabase
     .from("guests")
     .update({ views: data.views + 1 })
     .eq("token", token)
 
-  if (updateError) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update views"
-    })
-  }
-
-  return res.json({
-    success: true,
-    views: data.views + 1
-  })
+  res.json({ success: true })
 })
 
 // ========================
-// DELETE GUEST
+// EXPORT EXCEL
 // ========================
-app.delete("/api/guest/:id", async (req, res) => {
-  const { id } = req.params
+app.get("/api/guests/export", async (req, res) => {
+  const { data } = await supabase.from("guests").select("*")
 
-  const { error } = await supabase
-    .from("guests")
-    .delete()
-    .eq("id", id)
+  const wb = xlsx.utils.book_new()
+  const ws = xlsx.utils.json_to_sheet(data)
 
-  if (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete guest"
-    })
-  }
+  xlsx.utils.book_append_sheet(wb, ws, "guests")
 
-  return res.json({ success: true })
+  const file = xlsx.write(wb, { type: "buffer", bookType: "xlsx" })
+
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=guests.xlsx"
+  )
+
+  res.send(file)
 })
 
-// ========================
-// START SERVER
-// ========================
-app.listen(3001, () => {
-  console.log("Server running on port 3001")
-})
+app.listen(3001, () => console.log("Server running"))
