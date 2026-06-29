@@ -290,9 +290,21 @@ export async function getGuestByToken(
         `${BASE_URL}/guest/${token}`
       )
 
-    return await handleResponse(
-      res
-    )
+    const data =
+      await res.json()
+
+    // اگر خطا بود
+    if (!res.ok) {
+
+      return {
+        success: false,
+        message:
+          data?.message ||
+          "Guest not found"
+      }
+    }
+
+    return data
 
   } catch (error) {
 
@@ -301,7 +313,11 @@ export async function getGuestByToken(
       error
     )
 
-    return null
+    return {
+      success: false,
+      message:
+        "Network error"
+    }
   }
 }
 
