@@ -215,7 +215,7 @@ export default function GuestTable({
           }
         )
 
-      if (data?.id) {
+      if (data?.success) {
 
         alert("ویرایش شد")
 
