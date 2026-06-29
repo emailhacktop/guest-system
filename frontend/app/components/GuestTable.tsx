@@ -77,27 +77,33 @@ try {
 // ========================
 // RESET VIEWS
 // ========================
-async function resetViews(id: string) {
+async function resetViews(id: string, token: string) {
 
 try {
 
-  await fetch(
-    `http://localhost:3001/api/guest/reset/${id}`,
-    {
-      method: "POST"
-    }
-  )
-
-  if (onRefresh) {
-    onRefresh()
+await fetch(
+  `http://localhost:3001/api/guest/reset/${id}`,
+  {
+    method: "POST"
   }
+)
+
+// پاک کردن سشن بازدید
+localStorage.removeItem(
+  `view_${token}`
+)
+
+if (onRefresh) {
+  onRefresh()
+}
 
 } catch (err) {
 
-  console.error(
-    "Reset error:",
-    err
-  )
+console.error(
+  "Reset error:",
+  err
+)
+
 }
 
 }
@@ -196,6 +202,9 @@ await fetch(
     })
   }
 )
+
+// پاک کردن سشن بازدید 
+localStorage.removeItem( `view_${g.token}` )
 
 if (onRefresh) {
   onRefresh()
@@ -366,7 +375,7 @@ return (
             {/* RESET */}
             <button
               onClick={() =>
-                resetViews(g.id)
+                resetViews(g.id, g.token)
               }
               className="bg-indigo-600 text-white px-2 py-1 rounded text-xs"
             >
