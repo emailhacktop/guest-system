@@ -44,13 +44,24 @@ export default function GuestPage({
       data.success === false
     ) {
 
-      setError(
-        "لینک معتبر نیست"
-      )
+      if (
+        data?.message === "Link blocked"
+      ) {
+
+        setError(
+          "این لینک مسدود شده است"
+        )
+
+      } else {
+
+        setError(
+          "لینک معتبر نیست"
+        )
+      }
 
       return null
     }
-
+    
     if (
       data.views >= data.max_views
     ) {
