@@ -127,6 +127,7 @@ export async function editGuestApi(
   id: string,
   data: {
     name: string
+    title: string
     max_views: number
   }
 ) {
