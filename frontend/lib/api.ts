@@ -27,12 +27,15 @@ async function handleResponse(
   const data =
     await res.json()
 
+  // اگر خطا بود
   if (!res.ok) {
 
-    throw new Error(
-      data?.message ||
-      "API Error"
-    )
+    return {
+      success: false,
+      message:
+        data?.message ||
+        "API Error"
+    }
   }
 
   return data
@@ -350,5 +353,54 @@ export async function increaseView(
     )
 
     return null
+  }
+}
+
+// ========================
+// CHANGE PASSWORD
+// ========================
+export async function changePassword(
+  oldPassword: string,
+  newPassword: string
+) {
+
+  try {
+
+    const res =
+      await fetch(
+        `${BASE_URL}/change-password`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            ...authHeaders()
+          },
+
+          body: JSON.stringify({
+            oldPassword,
+            newPassword
+          })
+        }
+      )
+
+    return await handleResponse(
+      res
+    )
+
+  } catch (error) {
+
+    console.error(
+      "changePassword error:",
+      error
+    )
+
+    return {
+      success: false,
+      message:
+        "خطا در تغییر رمز"
+    }
   }
 }
