@@ -8,6 +8,14 @@ import {
   increaseView
 } from "@/lib/api"
 
+import { motion } from "framer-motion"
+
+import { TypeAnimation }
+from "react-type-animation"
+
+import Particles
+from "react-tsparticles"
+
 type ParamsType = Promise<{
   token: string
 }>
@@ -143,13 +151,9 @@ export default function GuestPage({
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen bg-black flex items-center justify-center text-white text-2xl">
 
-        <div className="bg-white p-8 rounded-xl shadow text-xl">
-
-          در حال بارگذاری...
-
-        </div>
+        در حال بارگذاری...
 
       </div>
     )
@@ -162,11 +166,11 @@ export default function GuestPage({
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen bg-black flex items-center justify-center p-5">
 
-        <div className="bg-white shadow-xl rounded-xl p-10 w-full max-w-lg text-center">
+        <div className="invite-card p-10 text-center max-w-xl">
 
-          <div className="text-2xl font-bold text-red-600 mb-4">
+          <div className="text-3xl text-red-500 font-bold">
 
             {error}
 
@@ -179,41 +183,170 @@ export default function GuestPage({
   }
 
   // ========================
-  // UI
+  // MAIN UI
   // ========================
   return (
 
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    <div className="relative min-h-screen bg-black overflow-hidden">
 
-      <div className="bg-white shadow-xl rounded-xl p-10 w-full max-w-xl space-y-5">
+      {/* PARTICLES */}
+      <Particles
+        options={{
+          background: {
+            color: {
+              value: "#000000"
+            }
+          },
 
-        <h1 className="text-4xl font-bold text-center">
+          fpsLimit: 60,
 
-          {guest.name}
+          particles: {
 
-        </h1>
+            number: {
+              value: 70
+            },
 
-        <div className="text-center text-gray-700 text-lg">
+            color: {
+              value: "#d4af37"
+            },
 
-          👁 بازدید:
-          {" "}
-          {guest.views}
+            size: {
+              value: {
+                min: 1,
+                max: 4
+              }
+            },
 
-        </div>
+            move: {
+              enable: true,
+              speed: 1
+            },
 
-        <div className="text-center text-gray-700 text-lg">
+            opacity: {
+              value: 0.7
+            }
+          }
+        }}
+      />
 
-          🎯 حداکثر بازدید:
-          {" "}
-          {guest.max_views}
+      {/* CONTENT */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-5 py-20">
 
-        </div>
+        <motion.div
 
-        <div className="bg-green-100 text-green-700 p-4 rounded text-center font-bold">
+          initial={{
+            opacity: 0,
+            scale: .8
+          }}
 
-          ✅ لینک فعال است
+          animate={{
+            opacity: 1,
+            scale: 1
+          }}
 
-        </div>
+          transition={{
+            duration: 1.5
+          }}
+
+          className="invite-card gold-border p-10 w-full max-w-3xl text-center space-y-10"
+        >
+
+          {/* TITLE */}
+          <div className="space-y-5">
+
+            <TypeAnimation
+              sequence={[
+                "به مراسم ویژه خوش آمدید",
+                2000
+              ]}
+              wrapper="div"
+              speed={50}
+              className="text-2xl md:text-4xl font-bold gold-text"
+              repeat={0}
+            />
+
+            {/* NAME */}
+            <motion.div
+
+              initial={{
+                opacity: 0,
+                y: 20
+              }}
+
+              animate={{
+                opacity: 1,
+                y: 0
+              }}
+
+              transition={{
+                delay: 3
+              }}
+
+              className="nastaliq gold-text text-5xl md:text-7xl"
+            >
+
+              {guest.name}
+
+            </motion.div>
+
+            {/* WELCOME */}
+            <motion.div
+
+              initial={{
+                opacity: 0
+              }}
+
+              animate={{
+                opacity: 1
+              }}
+
+              transition={{
+                delay: 4
+              }}
+
+              className="text-xl md:text-2xl text-gray-200"
+            >
+
+              حضور شما زینت‌بخش محفل ماست
+
+            </motion.div>
+
+          </div>
+
+          {/* VIDEO */}
+          <motion.div
+
+            initial={{
+              opacity: 0
+            }}
+
+            animate={{
+              opacity: 1
+            }}
+
+            transition={{
+              delay: 5
+            }}
+
+            className="space-y-5"
+          >
+
+            <video
+              controls
+              autoPlay
+              className="w-full rounded-2xl border-2 border-yellow-600 shadow-2xl"
+            >
+
+              <source
+                src="/video/invite.mp4"
+                type="video/mp4"
+              />
+
+            </video>
+
+          </motion.div>
+
+        </motion.div>
 
       </div>
 
