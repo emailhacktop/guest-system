@@ -317,7 +317,8 @@ app.put(
           name.trim(),
 
         title:
-       
+         title || "خانواده",
+         
         max_views
       })
       .eq("id", id)
