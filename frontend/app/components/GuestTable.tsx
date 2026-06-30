@@ -10,6 +10,7 @@ import {
 type Guest = {
   id: string
   name: string
+  title: string
   token: string
   max_views: number
   views: number
@@ -177,6 +178,14 @@ export default function GuestTable({
 
     if (!newName) return
 
+    const newTitle =
+      prompt(
+        "عنوان (خانواده / آقا / خانم)",
+        g.title || "خانواده"
+      )
+
+    if (!newTitle) return
+
     const newMax =
       prompt(
         "حداکثر بازدید (1 تا 999)",
@@ -205,16 +214,19 @@ export default function GuestTable({
     try {
 
       const data =
-        await editGuestApi(
-          g.id,
-          {
-            name:
-              newName.trim(),
-            max_views:
-              maxValue
-          }
-        )
+          await editGuestApi(
+            g.id,
+            {
+              name:
+                newName.trim(),
 
+              title:
+                newTitle.trim(),
+
+              max_views:
+                maxValue
+            }
+          )
       if (data?.success) {
 
         alert("ویرایش شد")
