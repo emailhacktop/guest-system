@@ -213,7 +213,7 @@ export default function GuestPage({
               sequence={[
                 '',
                 6000,
-                guest.name
+                `خدمت ${guest.title || ""} ${guest.name}`
               ]}
               speed={35}
               cursor={false}
