@@ -129,86 +129,93 @@ export default function Dashboard() {
 
   }, [])
 
-  // ========================
-  // CREATE GUEST
-  // ========================
-  async function handleCreate() {
+// ========================
+// CREATE GUEST
+// ========================
+async function handleCreate() {
 
-    // نام خالی نباشد
-    if (!name.trim()) {
+  // نام خالی نباشد
+  if (!name.trim()) {
 
-      setMessage(
-        "نام مهمان الزامی است"
-      )
+    setMessage(
+      "نام مهمان الزامی است"
+    )
 
-      return
-    }
+    return
+  }
 
-    // محدودیت بازدید
+  // محدودیت بازدید
+  if (
+    maxViews < 1 ||
+    maxViews > 999
+  ) {
+
+    setMessage(
+      "حداکثر بازدید باید بین 1 تا 999 باشد"
+    )
+
+    return
+  }
+
+  try {
+
+    setLoading(true)
+
+    setMessage("")
+
+    const result =
+      await createGuest({
+        name: name.trim(),
+        max_views:
+          Number(maxViews)
+      })
+
+    // ========================
+    // FAILED  خطای بک‌اند
+    // ========================
     if (
-      maxViews < 1 ||
-      maxViews > 999
+      !result ||
+      result.success === false
     ) {
 
       setMessage(
-        "حداکثر بازدید باید بین 1 تا 999 باشد"
+        result?.message ||
+        "خطا در ساخت مهمان"
       )
 
       return
     }
 
-    try {
+    // ========================
+    // SUCCESS موفق
+    // ========================
+    setMessage(
+      "مهمان ساخته شد"
+    )
 
-      setLoading(true)
+    setName("")
 
-      setMessage("")
+    setMaxViews(1)
 
-      const result =
-        await createGuest({
-          name: name.trim(),
-          max_views:
-            Number(maxViews)
-        })
+    await loadGuests()
 
-      // خطای بک‌اند
-      if (
-        result?.success === false
-      ) {
+  } catch (error: any) {
 
-        setMessage(
-          result.message
-        )
+    console.error(
+      "createGuest error:",
+      error
+    )
 
-        return
-      }
+    setMessage(
+      error?.message ||
+      "خطا در ساخت مهمان"
+    )
 
-      // موفق
-      setMessage(
-        "مهمان ساخته شد"
-      )
+  } finally {
 
-      setName("")
-
-      setMaxViews(1)
-
-      await loadGuests()
-
-    } catch (error) {
-
-      console.error(
-        "createGuest error:",
-        error
-      )
-
-      setMessage(
-        "خطا در ساخت مهمان"
-      )
-
-    } finally {
-
-      setLoading(false)
-    }
+    setLoading(false)
   }
+}
 
   // ========================
   // FILTERED GUESTS
