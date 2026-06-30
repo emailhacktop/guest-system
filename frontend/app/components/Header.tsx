@@ -29,6 +29,68 @@ export default function Header() {
   }
 
 // ========================
+// EXPORT EXCEL
+// ========================
+async function exportExcel() {
+
+try {
+
+  const token =
+    localStorage.getItem(
+      "admin-token"
+    )
+
+  const res = await fetch(
+    "http://localhost:3001/api/guests/export",
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`
+      }
+    }
+  )
+
+  if (!res.ok) {
+
+    alert("خطا در دانلود فایل")
+
+    return
+  }
+
+  // فایل باینری
+  const blob =
+    await res.blob()
+
+  // ساخت لینک دانلود
+  const url =
+    window.URL.createObjectURL(blob)
+
+  const a =
+    document.createElement("a")
+
+  a.href = url
+
+  a.download =
+    "guests.xlsx"
+
+  document.body.appendChild(a)
+
+  a.click()
+
+  a.remove()
+
+  window.URL.revokeObjectURL(url)
+
+} catch (err) {
+
+  console.error(err)
+
+  alert("خطا در دانلود اکسل")
+}
+
+}
+  
+// ========================
 // CHANGE PASSWORD
 // ========================
 async function changePassword() {
@@ -129,6 +191,14 @@ async function changePassword() {
             آنلاین
 
           </div>
+
+        {/* EXPORT */}
+        <button
+          onClick={exportExcel}
+          className="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded"
+        >
+          دانلود اکسل
+        </button>
 
           {/* CHANGE PASSWORD */}
           <button
