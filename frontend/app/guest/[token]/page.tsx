@@ -164,7 +164,7 @@ export default function GuestPage({
       {/* INTRO */}
       <div className="relative z-10 text-center mb-10">
 
-        <div className="gold-text text-5xl md:text-7xl font-bold leading-[90px]">
+        <div className="gold-text text-3xl md:text-5xl font-bold leading-[70px]">
 
           <TypeAnimation
             sequence={[
