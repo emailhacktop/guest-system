@@ -28,60 +28,71 @@ export default function Header() {
     window.location.href = "/login"
   }
 
-  // ========================
-  // CHANGE PASSWORD
-  // ========================
-  async function changePassword() {
+// ========================
+// CHANGE PASSWORD
+// ========================
+async function changePassword() {
 
-    if (!oldPassword || !newPassword) {
+  if (!oldPassword || !newPassword) {
 
-      alert("تمام فیلدها الزامی است")
+    alert("تمام فیلدها الزامی است")
 
-      return
-    }
+    return
+  }
 
-    try {
+  try {
 
-      const res = await fetch(
-        "http://localhost:3001/api/change-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            oldPassword,
-            newPassword
-          })
-        }
+    const token =
+      localStorage.getItem(
+        "admin-token"
       )
 
-      const data = await res.json()
+    const res = await fetch(
+      "http://localhost:3001/api/change-password",
+      {
+        method: "POST",
 
-      if (data.success) {
+        headers: {
+          "Content-Type":
+            "application/json",
 
-        alert("رمز تغییر کرد")
+          Authorization:
+            `Bearer ${token}`
+        },
 
-        setOldPassword("")
-        setNewPassword("")
-        setShowPasswordBox(false)
-
-      } else {
-
-        alert(
-          data.message ||
-          "خطا در تغییر رمز"
-        )
+        body: JSON.stringify({
+          oldPassword,
+          newPassword
+        })
       }
+    )
 
-    } catch (err) {
+    const data =
+      await res.json()
 
-      console.error(err)
+    if (data.success) {
 
-      alert("خطا در ارتباط با سرور")
+      alert("رمز تغییر کرد")
+
+      setOldPassword("")
+      setNewPassword("")
+      setShowPasswordBox(false)
+
+    } else {
+
+      alert(
+        data.message ||
+        "خطا در تغییر رمز"
+      )
     }
+
+  } catch (err) {
+
+    console.error(err)
+
+    alert("خطا در ارتباط با سرور")
   }
+}
 
   // ========================
   // UI
