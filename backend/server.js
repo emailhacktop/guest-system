@@ -241,6 +241,7 @@ app.put(
 
     const {
       name,
+      title,
       max_views
     } = req.body
 
@@ -286,7 +287,6 @@ app.put(
       .neq("id", id)
       .maybeSingle()
 
-    // اگر مهمان دیگری همین نام را دارد
     if (duplicate) {
 
       return res.json({
@@ -307,6 +307,10 @@ app.put(
       .update({
         name:
           name.trim(),
+
+        title:
+          title || "خانواده",
+
         max_views
       })
       .eq("id", id)
