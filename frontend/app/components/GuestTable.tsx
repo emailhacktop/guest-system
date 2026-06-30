@@ -180,7 +180,7 @@ export default function GuestTable({
 
     const newTitle =
       prompt(
-        "عنوان (خانواده / آقا / خانم)",
+        "عنوان (خانواده /آقای / خانم)",
         g.title || "خانواده"
       )
 
@@ -290,6 +290,10 @@ export default function GuestTable({
             </th>
 
             <th className="text-left p-3">
+              عنوان
+            </th>
+
+            <th className="text-left p-3">
               توکن
             </th>
 
@@ -326,6 +330,13 @@ export default function GuestTable({
               <td className="p-3 font-medium">
 
                 {g.name}
+
+              </td>
+
+              {/* TITLE */}
+              <td className="p-3">
+
+                {g.title}
 
               </td>
 
