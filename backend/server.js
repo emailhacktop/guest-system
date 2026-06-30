@@ -138,8 +138,9 @@ app.post(
   async (req, res) => {
 
     const {
-      name,
-      max_views
+    name,
+    title,
+    max_views
     } = req.body
 
     // validation
@@ -203,11 +204,18 @@ app.post(
       .from("guests")
       .insert([
         {
-          name:
-            name.trim(),
+        name:
+          name.trim(),
+        
+        title:
+          title || "خانواده",  
+        
           max_views,
+        
           views: 0,
+        
           token,
+        
           active: true
         }
       ])
@@ -244,7 +252,7 @@ app.put(
       title,
       max_views
     } = req.body
-console.log("BODY =>", req.body)
+
 // ========================
 // VALIDATION
 // ========================
@@ -309,8 +317,7 @@ console.log("BODY =>", req.body)
           name.trim(),
 
         title:
-          title || "خانواده",
-
+       
         max_views
       })
       .eq("id", id)
