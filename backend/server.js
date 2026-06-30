@@ -244,7 +244,9 @@ app.put(
       max_views
     } = req.body
 
-    // validation
+// ========================
+// VALIDATION
+// ========================
     if (
       !name ||
       name.trim() === ""
@@ -269,6 +271,34 @@ app.put(
       })
     }
 
+// ========================
+// DUPLICATE CHECK
+// ========================
+    const {
+      data: duplicate
+    } = await supabase
+      .from("guests")
+      .select("*")
+      .eq(
+        "name",
+        name.trim()
+      )
+      .neq("id", id)
+      .maybeSingle()
+
+    // اگر مهمان دیگری همین نام را دارد
+    if (duplicate) {
+
+      return res.json({
+        success: false,
+        message:
+          "این نام قبلاً ثبت شده است"
+      })
+    }
+
+// ========================
+// UPDATE
+// ========================
     const {
       data,
       error
