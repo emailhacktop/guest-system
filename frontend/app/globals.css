@@ -299,3 +299,49 @@ select {
     opacity: 0;
   }
 }
+
+/* =========================
+GOLD SNOW
+========================= */
+
+.gold-snow::before,
+.gold-snow::after {
+
+  content: "";
+
+  position: absolute;
+
+  inset: -300px;
+
+  background-image:
+    radial-gradient(#d4af37 1px, transparent 1px);
+
+  background-size: 35px 35px;
+
+  opacity: 0.18;
+
+  animation:
+    snowMove 30s linear infinite;
+
+  z-index: 1;
+}
+
+.gold-snow::after {
+
+  animation-duration: 50s;
+
+  opacity: 0.08;
+}
+
+@keyframes snowMove {
+
+  from {
+    transform:
+      translateY(-200px);
+  }
+
+  to {
+    transform:
+      translateY(200px);
+  }
+}

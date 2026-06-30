@@ -10,9 +10,6 @@ import {
 
 import { TypeAnimation } from "react-type-animation"
 
-import Particles from "react-tsparticles"
-import { loadFull } from "tsparticles"
-
 type ParamsType = Promise<{
   token: string
 }>
@@ -33,15 +30,6 @@ export default function GuestPage({
 
   const [error, setError] =
     useState<string | null>(null)
-
-  // ========================
-  // PARTICLES
-  // ========================
-  const particlesInit =
-    async (main: any) => {
-
-      await loadFull(main)
-    }
 
   // ========================
   // LOAD GUEST
@@ -159,50 +147,8 @@ export default function GuestPage({
 
     <div className="invitation-page relative min-h-screen overflow-hidden flex flex-col items-center justify-start py-10 px-4">
 
-      {/* GOLD PARTICLES */}
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        options={{
-          fullScreen: false,
-
-          background: {
-            color: "transparent"
-          },
-
-          particles: {
-
-            number: {
-              value: 80
-            },
-
-            color: {
-              value: "#d4af37"
-            },
-
-            size: {
-              value: {
-                min: 1,
-                max: 4
-              }
-            },
-
-            opacity: {
-              value: 0.8
-            },
-
-            move: {
-              enable: true,
-              speed: 1,
-              direction: "bottom",
-              outModes: {
-                default: "out"
-              }
-            }
-          }
-        }}
-        className="absolute inset-0 z-0"
-      />
+      {/* GOLD SNOW */}
+      <div className="gold-snow"></div>
 
       {/* INTRO */}
       <div className="relative z-10 text-center mb-10">
@@ -256,7 +202,12 @@ export default function GuestPage({
           </div>
 
           {/* NAME */}
-          <div className="nastaliq gold-text text-6xl leading-[110px] min-h-[120px]">
+          <div
+            className="gold-text text-6xl leading-[110px] min-h-[120px]"
+            style={{
+              fontFamily: "IranNastaliq"
+            }}
+          >
 
             <TypeAnimation
               sequence={[
@@ -294,7 +245,6 @@ export default function GuestPage({
             className="invite-video w-full aspect-[9/16] object-cover rounded-2xl"
             controls
             playsInline
-            preload="metadata"
           >
 
             <source
