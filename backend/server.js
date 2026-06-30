@@ -244,7 +244,7 @@ app.put(
       title,
       max_views
     } = req.body
-
+console.log("BODY =>", req.body)
 // ========================
 // VALIDATION
 // ========================
