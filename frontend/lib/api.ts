@@ -1,5 +1,7 @@
 const BASE_URL =
-  "http://localhost:3001/api"
+typeof window !== "undefined"
+? `${window.location.protocol}//${window.location.hostname}:3001/api`
+: "http://localhost:3001/api"
 
 // ========================
 // AUTH HEADER
