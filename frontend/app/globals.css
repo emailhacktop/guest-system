@@ -5,12 +5,8 @@
 ========================= */
 @font-face {
   font-family: "IranNastaliq";
-
-  src: url("/fonts/IranNastaliq.ttf")
-    format("truetype");
-
+  src: url("/fonts/IranNastaliq.ttf") format("truetype");
   font-weight: normal;
-
   font-style: normal;
 }
 
@@ -18,11 +14,8 @@
    ROOT
 ========================= */
 :root {
-
-  --background: #000000;
-
-  --foreground: #ffffff;
-
+  --background: #ffffff;
+  --foreground: #171717;
   --gold: #d4af37;
 }
 
@@ -30,99 +23,79 @@
    BODY
 ========================= */
 body {
-
   background: var(--background);
-
   color: var(--foreground);
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
+  font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+}
+
+/* =========================
+   INVITATION PAGE
+========================= */
+.invitation-page {
+  background: #000000;
+  color: #ffffff;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 /* =========================
    NASTALIQ
 ========================= */
 .nastaliq {
-
-  font-family: "IranNastaliq";
+  font-family: "IranNastaliq", serif;
 }
 
 /* =========================
    GOLD TEXT
 ========================= */
 .gold-text {
-
   color: var(--gold);
 
   text-shadow:
-    0 0 10px rgba(212,175,55,.7),
-    0 0 20px rgba(212,175,55,.5),
-    0 0 40px rgba(212,175,55,.4);
+    0 0 10px rgba(212, 175, 55, 0.7),
+    0 0 20px rgba(212, 175, 55, 0.5),
+    0 0 40px rgba(212, 175, 55, 0.4);
+
+  opacity: 1 !important;
 }
 
 /* =========================
-   GLASS CARD
+   INVITE CARD
 ========================= */
 .invite-card {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 20, 0, 0.92),
+    rgba(0, 0, 0, 0.96)
+  );
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(30,20,0,.9),
-      rgba(0,0,0,.95)
-    );
-
-  border: 3px solid #d4af37;
+  border: 2px solid #d4af37;
 
   border-radius: 30px;
 
   box-shadow:
-    0 0 20px rgba(212,175,55,.2),
-    inset 0 0 20px rgba(212,175,55,.1);
+    0 0 30px rgba(212, 175, 55, 0.15),
+    inset 0 0 20px rgba(212, 175, 55, 0.08);
+
+  backdrop-filter: blur(6px);
+
+  position: relative;
+
+  z-index: 2;
+
+  overflow: hidden;
 }
 
 /* =========================
-   FADE IN
-========================= */
-.fade-in {
-
-  animation:
-    fadeIn 2s ease forwards;
-}
-
-@keyframes fadeIn {
-
-  from {
-
-    opacity: 0;
-
-    transform:
-      translateY(20px);
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform:
-      translateY(0);
-  }
-}
-
-/* =========================
-   GOLD BORDER GLOW
+   GOLD BORDER
 ========================= */
 .gold-border {
-
   position: relative;
 }
 
 .gold-border::before {
-
   content: "";
 
   position: absolute;
@@ -133,20 +106,196 @@ body {
 
   padding: 2px;
 
-  background:
-    linear-gradient(
-      45deg,
-      #d4af37,
-      #f6e27a,
-      #d4af37
-    );
+  background: linear-gradient(
+    45deg,
+    #d4af37,
+    #f6e27a,
+    #d4af37
+  );
 
   -webkit-mask:
-    linear-gradient(#fff 0 0)
-    content-box,
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
 
   -webkit-mask-composite: xor;
 
+  mask-composite: exclude;
+
   pointer-events: none;
+}
+
+/* =========================
+   FADE IN
+========================= */
+.fade-in {
+  animation: fadeIn 1.5s ease forwards;
+
+  opacity: 1 !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   VIDEO
+========================= */
+.invite-video {
+  width: 100%;
+
+  max-width: 380px;
+
+  aspect-ratio: 9 / 16;
+
+  object-fit: cover;
+
+  border-radius: 24px;
+
+  border: 2px solid #d4af37;
+
+  box-shadow:
+    0 0 25px rgba(212, 175, 55, 0.25);
+
+  background: #000;
+
+  opacity: 1 !important;
+
+  visibility: visible !important;
+
+  display: block !important;
+}
+
+/* =========================
+   FORCE VIDEO FIX
+========================= */
+video {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* =========================
+   TYPING TEXT FIX
+========================= */
+.typing-text {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* =========================
+   PANEL FIX
+========================= */
+.bg-white {
+  color: #111 !important;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+input,
+textarea,
+select {
+  color: #111 !important;
+}
+
+/* =========================
+   GOLD PARTICLES
+========================= */
+.gold-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gold-particles span {
+  position: absolute;
+
+  width: 6px;
+  height: 6px;
+
+  background: #d4af37;
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 10px #d4af37,
+    0 0 20px #d4af37;
+
+  animation: snowfall linear infinite;
+}
+
+.gold-particles span:nth-child(1) {
+  left: 10%;
+  animation-duration: 8s;
+}
+
+.gold-particles span:nth-child(2) {
+  left: 20%;
+  animation-duration: 12s;
+}
+
+.gold-particles span:nth-child(3) {
+  left: 30%;
+  animation-duration: 10s;
+}
+
+.gold-particles span:nth-child(4) {
+  left: 40%;
+  animation-duration: 14s;
+}
+
+.gold-particles span:nth-child(5) {
+  left: 50%;
+  animation-duration: 9s;
+}
+
+.gold-particles span:nth-child(6) {
+  left: 60%;
+  animation-duration: 13s;
+}
+
+.gold-particles span:nth-child(7) {
+  left: 70%;
+  animation-duration: 11s;
+}
+
+.gold-particles span:nth-child(8) {
+  left: 80%;
+  animation-duration: 15s;
+}
+
+.gold-particles span:nth-child(9) {
+  left: 90%;
+  animation-duration: 10s;
+}
+
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
 }
