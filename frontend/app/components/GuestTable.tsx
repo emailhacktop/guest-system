@@ -230,7 +230,7 @@ export default function GuestTable({
 
       } else {
 
-        alert("ویرایش انجام نشد")
+        alert("این نام قبلاً ثبت شده است")
       }
 
     } catch (err) {
