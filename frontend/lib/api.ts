@@ -79,43 +79,45 @@ export async function getGuests() {
 // CREATE GUEST
 // ========================
 export async function createGuest(
-  data: {
-    name: string
-    max_views: number
-  }
+data: {
+name: string
+title: string
+max_views: number
+}
 ) {
 
-  try {
+try {
 
-    const res =
-      await fetch(
-        `${BASE_URL}/guest`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json",
-            ...authHeaders()
-          },
-          body: JSON.stringify(data)
-        }
-      )
-
-    return await handleResponse(
-      res
-    )
-
-  } catch (error) {
-
-    console.error(
-      "createGuest error:",
-      error
-    )
-
-    return {
-      success: false
+const res =
+  await fetch(
+    `${BASE_URL}/guest`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+        ...authHeaders()
+      },
+      body: JSON.stringify(data)
     }
-  }
+  )
+
+return await handleResponse(
+  res
+)
+
+} catch (error) {
+
+console.error(
+  "createGuest error:",
+  error
+)
+
+return {
+  success: false
+}
+
+}
 }
 
 // ========================
