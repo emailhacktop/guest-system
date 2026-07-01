@@ -561,6 +561,18 @@ app.get(
       })
     }
 
+    // LIMIT REACHED
+    if (
+      data.views >= data.max_views
+    ) {
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "Limit reached"
+      })
+    }
+
     res.json(data)
   }
 )
