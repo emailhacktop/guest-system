@@ -216,6 +216,9 @@ body {
 
   max-width: 380px;
 
+  margin-left: auto;
+  margin-right: auto;
+    
   aspect-ratio: 9 / 16;
 
   object-fit: cover;
