@@ -634,29 +634,35 @@ app.post(
     }
 
     // increase
-    const newViews =
-      guest.views + 1
+      const {
+        data: updatedGuest,
+        error: updateError
+      } = await supabase
+        .from("guests")
+        .update({
+          views: guest.views + 1
+        })
+        .eq("token", token)
+        .lt("views", guest.max_views)
+        .select()
+        .single()
 
-    const {
-      error: updateError
-    } = await supabase
-      .from("guests")
-      .update({
-        views: newViews
+      if (
+        updateError ||
+        !updatedGuest
+      ) {
+
+        return res.status(403).json({
+          success: false,
+          message:
+            "Limit reached"
+        })
+      }
+
+      res.json({
+        success: true,
+        views: updatedGuest.views
       })
-      .eq("token", token)
-
-    if (updateError) {
-
-      return res.status(500).json({
-        success: false
-      })
-    }
-
-    res.json({
-      success: true,
-      views: newViews
-    })
   }
 )
 
