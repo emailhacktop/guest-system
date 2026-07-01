@@ -5,7 +5,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
-import crypto from "crypto"
+
 
 dotenv.config()
 
@@ -272,7 +272,7 @@ app.put(
       name.trim() === ""
     ) {
 
-      return res.json({
+      return res.status(400).json({
         success: false,
         message:
           "نام مهمان الزامی است"
@@ -308,7 +308,7 @@ app.put(
 
     if (duplicate) {
 
-      return res.json({
+      return res.status(409).json({
         success: false,
         message:
           "این نام قبلاً ثبت شده است"
@@ -337,7 +337,7 @@ app.put(
 
     if (error) {
 
-      return res.json({
+      return res.status(500).json({
         success: false,
         error
       })
@@ -513,20 +513,9 @@ app.post(
     const { token } =
       req.params
 
-    const ip =
-      req.headers["x-forwarded-for"] ||
-      req.socket.remoteAddress ||
-      "unknown"
-
-    const ipHash =
-      crypto
-        .createHash("sha256")
-        .update(ip)
-        .digest("hex")
-
     // guest
     const {
-      data: guest,
+      data,
       error
     } = await supabase
       .from("guests")
@@ -536,16 +525,18 @@ app.post(
 
     if (
       error ||
-      !guest
+      !data
     ) {
 
       return res.status(404).json({
-        success: false
+        success: false,
+        message:
+          "Guest not found"
       })
     }
 
     // blocked
-    if (!guest.active) {
+    if (!data.active) {
 
       return res.status(403).json({
         success: false,
@@ -556,8 +547,8 @@ app.post(
 
     // max views
     if (
-      guest.views >=
-      guest.max_views
+      data.views >=
+      data.max_views
     ) {
 
       return res.status(403).json({
@@ -567,46 +558,25 @@ app.post(
       })
     }
 
-    // duplicate ip
-    const {
-      data: existingView
-    } = await supabase
-      .from("guest_views")
-      .select("*")
-      .eq("token", token)
-      .eq("ip_hash", ipHash)
-      .maybeSingle()
-
-    // already viewed
-    if (existingView) {
-
-      return res.json({
-        success: true,
-        alreadyViewed: true,
-        views: guest.views
-      })
-    }
-
-    // save ip
-    await supabase
-      .from("guest_views")
-      .insert([
-        {
-          token,
-          ip_hash: ipHash
-        }
-      ])
-
     // increase
     const newViews =
-      guest.views + 1
+      data.views + 1
 
-    await supabase
+    const {
+      error: updateError
+    } = await supabase
       .from("guests")
       .update({
         views: newViews
       })
       .eq("token", token)
+
+    if (updateError) {
+
+      return res.status(500).json({
+        success: false
+      })
+    }
 
     res.json({
       success: true,
@@ -686,7 +656,7 @@ app.post(
           "رمز فعلی اشتباه است"
       })
     }
-
+    
     // validation
     if (
       !newPassword ||
@@ -701,11 +671,15 @@ app.post(
     }
 
     // temp memory change
-    process.env.ADMIN_PASSWORD =
-      newPassword
+    const hashedPassword =
+      await bcrypt.hash(
+        newPassword,
+        10
+      )
 
     res.json({
-      success: true
+      success: true,
+      hashedPassword
     })
   }
 )
