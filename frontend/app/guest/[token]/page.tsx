@@ -156,7 +156,7 @@ export default function GuestPage({
   // ========================
   return (
 
-    <div className="invitation-page relative min-h-screen overflow-hidden flex flex-col items-center justify-start py-10 px-4">
+  <div className="invitation-page relative min-h-screen overflow-hidden flex flex-col items-center justify-start py-10 px-4 bg-black">
 
       {/* GOLD SNOW */}
       <div className="gold-snow"></div>
@@ -193,7 +193,24 @@ export default function GuestPage({
       </div>
 
       {/* MAIN CARD */}
-      <div className="invite-card gold-border relative z-10 w-full max-w-md p-6 text-center">
+      <div
+        className="
+          invite-card
+          gold-border
+          relative
+          z-10
+          w-full
+          max-w-md
+          p-6
+          text-center
+          backdrop-blur-xl
+          bg-white/5
+          border
+          border-yellow-500/30
+          shadow-[0_0_40px_rgba(255,215,0,0.25)]
+          rounded-[35px]
+        "
+      >
 
         {/* WELCOME */}
         <div className="mb-8">
@@ -253,7 +270,16 @@ export default function GuestPage({
         <div className="relative z-20">
 
           <video
-            className="invite-video w-full aspect-[9/16] object-cover rounded-2xl"
+            className="
+              invite-video
+              w-full
+              aspect-[9/16]
+              object-cover
+              rounded-[28px]
+              border-4
+              border-yellow-500/40
+              shadow-[0_0_30px_rgba(255,215,0,0.35)]
+            "
             controls
             playsInline
           >
