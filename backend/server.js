@@ -5,6 +5,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
+import crypto from "crypto"
 
 dotenv.config()
 
@@ -502,6 +503,9 @@ app.get(
 // ========================
 // INCREASE VIEW
 // ========================
+// ========================
+// INCREASE VIEW
+// ========================
 app.post(
   "/api/guest/view/:token",
   async (req, res) => {
@@ -509,8 +513,20 @@ app.post(
     const { token } =
       req.params
 
+    const ip =
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      "unknown"
+
+    const ipHash =
+      crypto
+        .createHash("sha256")
+        .update(ip)
+        .digest("hex")
+
+    // guest
     const {
-      data,
+      data: guest,
       error
     } = await supabase
       .from("guests")
@@ -520,7 +536,7 @@ app.post(
 
     if (
       error ||
-      !data
+      !guest
     ) {
 
       return res.status(404).json({
@@ -528,25 +544,62 @@ app.post(
       })
     }
 
-    if (!data.active) {
+    // blocked
+    if (!guest.active) {
 
       return res.status(403).json({
-        success: false
+        success: false,
+        message:
+          "Link blocked"
       })
     }
 
+    // max views
     if (
-      data.views >=
-      data.max_views
+      guest.views >=
+      guest.max_views
     ) {
 
       return res.status(403).json({
-        success: false
+        success: false,
+        message:
+          "Limit reached"
       })
     }
 
+    // duplicate ip
+    const {
+      data: existingView
+    } = await supabase
+      .from("guest_views")
+      .select("*")
+      .eq("token", token)
+      .eq("ip_hash", ipHash)
+      .maybeSingle()
+
+    // already viewed
+    if (existingView) {
+
+      return res.json({
+        success: true,
+        alreadyViewed: true,
+        views: guest.views
+      })
+    }
+
+    // save ip
+    await supabase
+      .from("guest_views")
+      .insert([
+        {
+          token,
+          ip_hash: ipHash
+        }
+      ])
+
+    // increase
     const newViews =
-      data.views + 1
+      guest.views + 1
 
     await supabase
       .from("guests")
@@ -619,10 +672,13 @@ app.post(
     } = req.body
 
     // check old
-    if (
-      oldPassword !==
-      process.env.ADMIN_PASSWORD
-    ) {
+    const validOldPassword =
+      await bcrypt.compare(
+        oldPassword,
+        process.env.ADMIN_PASSWORD
+      )
+
+    if (!validOldPassword) {
 
       return res.json({
         success: false,
