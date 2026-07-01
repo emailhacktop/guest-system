@@ -184,6 +184,7 @@ app.post(
     const {
     name,
     title,
+    guests_count,
     max_views
     } = req.body
 
@@ -212,6 +213,19 @@ app.post(
           "حداکثر بازدید باید بین 1 تا 999 باشد"
       })
     }
+
+    if (
+      !guests_count ||
+      guests_count < 1 ||
+      guests_count > 99
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "تعداد نفرات باید بین 1 تا 99 باشد"
+      })
+    } 
 
     // duplicate
     const {
@@ -256,6 +270,8 @@ app.post(
         
           max_views,
         
+          guests_count,
+
           views: 0,
         
           token,
@@ -294,6 +310,7 @@ app.put(
     const {
       name,
       title,
+      guests_count,
       max_views
     } = req.body
 
@@ -324,6 +341,18 @@ app.put(
       })
     }
 
+    if (
+      guests_count < 1 ||
+      guests_count > 99
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "تعداد نفرات باید بین 1 تا 99 باشد"
+      })
+    }    
+    
 // ========================
 // DUPLICATE CHECK
 // ========================
@@ -363,7 +392,9 @@ app.put(
         title:
          title || "خانواده",
          
-        max_views
+        max_views,
+
+        guests_count
       })
       .eq("id", id)
       .select()
