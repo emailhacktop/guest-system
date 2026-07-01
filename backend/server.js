@@ -1,4 +1,3 @@
-import crypto from "crypto"
 import rateLimit from "express-rate-limit"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
@@ -590,60 +589,7 @@ app.post(
       })
     }
 
-    // ========================
-    // GET CLIENT IP
-    // ========================
-    const ip =
-      req.headers["x-forwarded-for"] ||
-      req.socket.remoteAddress ||
-      "unknown"
-
-    // ========================
-    // HASH IP
-    // ========================
-    const ipHash =
-      crypto
-        .createHash("sha256")
-        .update(String(ip))
-        .digest("hex")
-
-    // ========================
-    // CHECK EXISTING VIEW
-    // ========================
-    const {
-      data: existingView
-    } = await supabase
-      .from("guest_view_logs")
-      .select("*")
-      .eq("token", token)
-      .eq("ip_hash", ipHash)
-      .maybeSingle()
-
-    // اگر قبلاً دیده
-    if (existingView) {
-
-      return res.json({
-        success: true,
-        alreadyViewed: true,
-        views: guest.views
-      })
-    }
-
-    // ========================
-    // ADD VIEW LOG
-    // ========================
-    await supabase
-      .from("guest_view_logs")
-      .insert([
-        {
-          token,
-          ip_hash: ipHash
-        }
-      ])
-
-    // ========================
-    // INCREASE VIEW
-    // ========================
+    // increase
     const newViews =
       guest.views + 1
 
