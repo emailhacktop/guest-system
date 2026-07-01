@@ -47,19 +47,7 @@ body {
   font-family: "IranNastaliq", serif;
 }
 
-/* =========================
-   GOLD TEXT
-========================= */
-.gold-text {
-  color: var(--gold);
 
-  text-shadow:
-    0 0 10px rgba(212, 175, 55, 0.7),
-    0 0 20px rgba(212, 175, 55, 0.5),
-    0 0 40px rgba(212, 175, 55, 0.4);
-
-  opacity: 1 !important;
-}
 
 /* =========================
    INVITE CARD
@@ -125,6 +113,53 @@ body {
 }
 
 /* =========================
+   MOVING GOLD LIGHT
+========================= */
+
+.invite-card::after {
+
+  content: "";
+
+  position: absolute;
+
+  top: -50%;
+
+  left: -60%;
+
+  width: 70%;
+
+  height: 200%;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,215,0,0.18),
+      transparent
+    );
+
+  transform: rotate(15deg);
+
+  animation:
+    shineMove 7s linear infinite;
+
+  pointer-events: none;
+}
+
+@keyframes shineMove {
+
+  from {
+
+    left: -80%;
+  }
+
+  to {
+
+    left: 140%;
+  }
+}
+
+/* =========================
    FADE IN
 ========================= */
 .fade-in {
@@ -146,6 +181,34 @@ body {
 }
 
 /* =========================
+   CARD ENTRANCE
+========================= */
+
+.card-enter {
+
+  animation:
+    cardEnter 1.4s ease-out forwards;
+
+  opacity: 0;
+
+  transform:
+    translateY(40px)
+    scale(0.96);
+}
+
+@keyframes cardEnter {
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================
    VIDEO
 ========================= */
 .invite-video {
@@ -159,10 +222,12 @@ body {
 
   border-radius: 24px;
 
-  border: 2px solid #d4af37;
+  border: 3px solid rgba(212,175,55,0.9);
 
   box-shadow:
-    0 0 25px rgba(212, 175, 55, 0.25);
+   0 0 15px rgba(212,175,55,0.25),
+   0 0 40px rgba(212,175,55,0.18),
+   inset 0 0 12px rgba(255,215,120,0.15);
 
   background: #000;
 
@@ -346,28 +411,30 @@ GOLD SNOW
   }
 }
 
+/* =========================
+   GOLD TEXT
+========================= */
 .gold-text {
 
   background: linear-gradient(
     90deg,
     #f6d365,
+    #fff3b0,
     #fda085,
     #f6d365
   );
 
-  background-size: 200% auto;
+  background-size: 250% auto;
 
   color: transparent;
 
   background-clip: text;
   -webkit-background-clip: text;
 
-  animation: goldFlow 5s linear infinite;
-}
+  animation:
+    goldFlow 6s linear infinite;
 
-@keyframes goldFlow {
-
-  to {
-    background-position: 200% center;
-  }
+  text-shadow:
+    0 0 10px rgba(212,175,55,0.35),
+    0 0 25px rgba(212,175,55,0.25);
 }

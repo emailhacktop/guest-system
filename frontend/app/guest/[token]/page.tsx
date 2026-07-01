@@ -196,11 +196,12 @@ export default function GuestPage({
       <div
         className="
           invite-card
+          card-enter
           gold-border
           relative
           z-10
           w-full
-          max-w-md
+          max-w-lg
           p-6
           text-center
           backdrop-blur-xl
@@ -231,7 +232,7 @@ export default function GuestPage({
 
           {/* NAME */}
           <div
-            className="gold-text text-6xl leading-[110px] min-h-[120px]"
+            className="gold-text text-4xl md:text-6xl leading-[80px] md:leading-[110px]"
             style={{
               fontFamily: "IranNastaliq"
             }}
@@ -276,9 +277,9 @@ export default function GuestPage({
               aspect-[9/16]
               object-cover
               rounded-[28px]
-              border-4
-              border-yellow-500/40
-              shadow-[0_0_30px_rgba(255,215,0,0.35)]
+              border-2
+              border-yellow-400/40
+              shadow-[0_0_18px_rgba(255,215,0,0.22)]
             "
             controls
             playsInline
