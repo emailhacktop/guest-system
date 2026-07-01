@@ -36,7 +36,7 @@ export default function GuestTable({
   ) {
 
     const url =
-      `http://localhost:3000/guest/${token}`
+      `${window.location.origin}/guest/${token}`
 
     try {
 
@@ -187,6 +187,30 @@ export default function GuestTable({
 
     if (!newTitle) return
 
+    const newGuestsCount =
+      prompt(
+        "تعداد نفرات (1 تا 99)",
+        String(g.guests_count || 1)
+      )
+
+    if (!newGuestsCount) return
+
+    const guestsCountValue =
+      Number(newGuestsCount)
+
+    if (
+      isNaN(guestsCountValue) ||
+      guestsCountValue < 1 ||
+      guestsCountValue > 99
+    ) {
+
+      alert(
+        "تعداد نفرات باید بین 1 تا 99 باشد"
+      )
+
+      return
+    }
+
     const newMax =
       prompt(
         "حداکثر بازدید (1 تا 999)",
@@ -224,6 +248,9 @@ export default function GuestTable({
               title:
                 newTitle.trim(),
 
+              guests_count:
+                guestsCountValue,
+                
               max_views:
                 maxValue
             }
@@ -258,6 +285,43 @@ export default function GuestTable({
   // ========================
   // EMPTY
   // ========================
+  function downloadLinks() {
+
+    if (!guests) return
+
+    let content = ""
+
+    guests.forEach((g) => {
+
+      content += `${g.title} ${g.name}\n`
+
+      content += `${window.location.origin}/guest/${g.token}\n\n`
+    })
+
+    const blob =
+      new Blob(
+        [content],
+        {
+          type: "text/plain"
+        }
+      )
+
+    const url =
+      URL.createObjectURL(blob)
+
+    const a =
+      document.createElement("a")
+
+    a.href = url
+
+    a.download =
+      "guest-links.txt"
+
+    a.click()
+
+    URL.revokeObjectURL(url)
+  }
+
   if (
     !guests ||
     guests.length === 0
@@ -279,6 +343,26 @@ export default function GuestTable({
   return (
 
     <div className="bg-white p-4 rounded shadow overflow-x-auto">
+    {/* TOP ACTIONS */}
+    <div className="flex justify-end mb-4">
+
+      <button
+        onClick={downloadLinks}
+        className="
+          bg-emerald-600
+          hover:bg-emerald-700
+          text-white
+          px-4
+          py-2
+          rounded-lg
+          text-sm
+          transition
+        "
+      >
+        دانلود لینک‌ها
+      </button>
+
+    </div>
 
       <table className="w-full text-sm">
 
