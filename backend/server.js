@@ -250,9 +250,9 @@ app.post(
 
     // token
     const token =
-      Math.random()
-        .toString(36)
-        .substring(2, 12)
+      crypto
+        .randomBytes(16)
+        .toString("hex")
 
     // insert
     const {
