@@ -359,7 +359,7 @@ export default function GuestTable({
           transition
         "
       >
-        دانلود لینک‌ها
+        دانلود لینک‌ ها
       </button>
 
     </div>

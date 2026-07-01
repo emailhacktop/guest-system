@@ -389,54 +389,7 @@ return (
             : "ساخت مهمان"}
         </button>
 
-        <button
-          onClick={() => {
 
-            const links =
-              filteredGuests.map((g: any) => {
-
-                return `${g.title} ${g.name}\n${window.location.origin}/guest/${g.token}`
-
-              }).join("\n\n")
-
-            const blob =
-              new Blob(
-                [links],
-                {
-                  type: "text/plain"
-                }
-              )
-
-            const url =
-              URL.createObjectURL(blob)
-
-            const a =
-              document.createElement("a")
-
-            a.href = url
-
-            a.download =
-              "guest-links.txt"
-
-            a.click()
-
-            URL.revokeObjectURL(url)
-          }}
-
-          className="
-            bg-green-600
-            hover:bg-green-700
-            transition
-            text-white
-            px-6
-            py-3
-            rounded-xl
-          "
-        >
-
-          دانلود لینک‌ها
-
-        </button>
 
       </div>
 
