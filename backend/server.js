@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import express from "express"
 import cors from "cors"
@@ -68,10 +69,13 @@ app.post("/api/login", (req, res) => {
 
   const { password } = req.body
 
-  if (
-    password !==
-    process.env.ADMIN_PASSWORD
-  ) {
+  const validPassword =
+    await bcrypt.compare(
+      password,
+      process.env.ADMIN_PASSWORD
+    )
+
+  if (!validPassword) {
 
     return res.status(401).json({
       success: false,
