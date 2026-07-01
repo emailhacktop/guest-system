@@ -32,6 +32,9 @@ useState("خانواده")
 const [maxViews, setMaxViews] =
 useState(1)
 
+const [guestsCount, setGuestsCount] =
+useState(1)
+
 const [loading, setLoading] =
 useState(false)
 

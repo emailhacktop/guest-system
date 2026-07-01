@@ -13,6 +13,7 @@ type Guest = {
   title: string
   token: string
   max_views: number
+  guests_count: number
   views: number
   active: boolean
 }
@@ -298,6 +299,10 @@ export default function GuestTable({
             </th>
 
             <th className="text-left p-3">
+              تعداد
+            </th>
+
+            <th className="text-left p-3">
               بازدید
             </th>
 
@@ -344,6 +349,13 @@ export default function GuestTable({
               <td className="p-3 text-xs text-blue-600">
 
                 {g.token}
+
+              </td>
+
+              {/* guests_count */}
+              <td className="p-3">
+
+                {g.guests_count}
 
               </td>
 

@@ -242,7 +242,7 @@ export default function GuestPage({
               sequence={[
                 '',
                 6000,
-                `خدمت ${guest.title || ""} ${guest.name}`
+                ` خدمت ${guest.title || ""} ${guest.name}`
               ]}
               speed={35}
               cursor={false}
@@ -257,7 +257,7 @@ export default function GuestPage({
               sequence={[
                 '',
                 8500,
-                'بااحترام حضور گرم شمارا دراین مراسم ارج می نهیم'
+                'با احترام حضور گرم شمارا دراین مراسم ارج می نهیم'
               ]}
               speed={45}
               cursor={false}
