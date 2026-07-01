@@ -1,3 +1,4 @@
+import crypto from "crypto"
 import rateLimit from "express-rate-limit"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
@@ -533,9 +534,7 @@ app.get(
   }
 )
 
-// ========================
-// INCREASE VIEW
-// ========================
+
 // ========================
 // INCREASE VIEW
 // ========================
@@ -548,7 +547,7 @@ app.post(
 
     // guest
     const {
-      data,
+      data: guest,
       error
     } = await supabase
       .from("guests")
@@ -558,7 +557,7 @@ app.post(
 
     if (
       error ||
-      !data
+      !guest
     ) {
 
       return res.status(404).json({
@@ -569,7 +568,7 @@ app.post(
     }
 
     // blocked
-    if (!data.active) {
+    if (!guest.active) {
 
       return res.status(403).json({
         success: false,
@@ -580,8 +579,8 @@ app.post(
 
     // max views
     if (
-      data.views >=
-      data.max_views
+      guest.views >=
+      guest.max_views
     ) {
 
       return res.status(403).json({
@@ -591,9 +590,62 @@ app.post(
       })
     }
 
-    // increase
+    // ========================
+    // GET CLIENT IP
+    // ========================
+    const ip =
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      "unknown"
+
+    // ========================
+    // HASH IP
+    // ========================
+    const ipHash =
+      crypto
+        .createHash("sha256")
+        .update(String(ip))
+        .digest("hex")
+
+    // ========================
+    // CHECK EXISTING VIEW
+    // ========================
+    const {
+      data: existingView
+    } = await supabase
+      .from("guest_view_logs")
+      .select("*")
+      .eq("token", token)
+      .eq("ip_hash", ipHash)
+      .maybeSingle()
+
+    // اگر قبلاً دیده
+    if (existingView) {
+
+      return res.json({
+        success: true,
+        alreadyViewed: true,
+        views: guest.views
+      })
+    }
+
+    // ========================
+    // ADD VIEW LOG
+    // ========================
+    await supabase
+      .from("guest_view_logs")
+      .insert([
+        {
+          token,
+          ip_hash: ipHash
+        }
+      ])
+
+    // ========================
+    // INCREASE VIEW
+    // ========================
     const newViews =
-      data.views + 1
+      guest.views + 1
 
     const {
       error: updateError
