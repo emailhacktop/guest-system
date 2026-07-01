@@ -168,6 +168,8 @@ try {
     await createGuest({
       name: name.trim(),
       title: title,
+      guests_count:
+        Number(guestsCount),
       max_views:
         Number(maxViews)
     })
@@ -272,92 +274,133 @@ return (
 
     <div className="p-6 space-y-6">
 
-      {/* CREATE FORM */}
-      <div className="bg-white p-4 rounded shadow space-y-3">
+    {/* CREATE FORM */}
+    <div className="bg-white p-5 rounded-2xl shadow space-y-5">
+
+      {/* GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {/* NAME */}
-        <input
-          className="border p-2 w-full rounded"
-          placeholder="نام مهمان"
-          value={name}
-          onChange={(e) =>
-            setName(
-              e.target.value
-            )
-          }
-        />
+        <div>
+          <label className="block text-sm mb-2 text-gray-600">
+            نام مهمان
+          </label>
+
+          <input
+            className="border p-3 w-full rounded-xl"
+            placeholder="مثلاً خانواده محمدی"
+            value={name}
+            onChange={(e) =>
+              setName(e.target.value)
+            }
+          />
+        </div>
 
         {/* TITLE */}
-        <select
-          className="border p-2 w-full rounded"
-          value={title}
-          onChange={(e) =>
-            setTitle(
-              e.target.value
-            )
-          }
-        >
+        <div>
+          <label className="block text-sm mb-2 text-gray-600">
+            عنوان
+          </label>
 
-          <option value="خانواده">
-            خانواده
-          </option>
+          <select
+            className="border p-3 w-full rounded-xl"
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value)
+            }
+          >
+            <option value="خانواده">
+              خانواده
+            </option>
 
-          <option value="آقای">
-            آقای
-          </option>
+            <option value="آقای">
+              آقای
+            </option>
 
-          <option value="خانم">
-            خانم
-          </option>
+            <option value="خانم">
+              خانم
+            </option>
+          </select>
+        </div>
 
-        </select>
+        {/* GUEST COUNT */}
+        <div>
+          <label className="block text-sm mb-2 text-gray-600">
+            تعداد نفرات
+          </label>
+
+          <input
+            className="border p-3 w-full rounded-xl"
+            type="number"
+            min={1}
+            max={99}
+            value={guestsCount}
+            onChange={(e) =>
+              setGuestsCount(
+                Number(e.target.value)
+              )
+            }
+          />
+        </div>
 
         {/* MAX VIEWS */}
-        <input
-          className="border p-2 w-full rounded"
-          type="number"
-          placeholder="حداکثر بازدید"
-          value={maxViews}
-          min={1}
-          max={999}
-          onChange={(e) =>
-            setMaxViews(
-              Number(
-                e.target.value
+        <div>
+          <label className="block text-sm mb-2 text-gray-600">
+            تعداد بازدید
+          </label>
+
+          <input
+            className="border p-3 w-full rounded-xl"
+            type="number"
+            min={1}
+            max={999}
+            value={maxViews}
+            onChange={(e) =>
+              setMaxViews(
+                Number(e.target.value)
               )
-            )
-          }
-        />
+            }
+          />
+        </div>
 
-        {/* BUTTON */}
-        <div className="flex gap-3 flex-wrap">
+      </div>
 
-          <button
-            onClick={handleCreate}
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
+      {/* BUTTONS */}
+      <div className="flex gap-3 flex-wrap">
 
-            {loading
-              ? "در حال ساخت..."
-              : "ساخت مهمان"}
+        <button
+          onClick={handleCreate}
+          disabled={loading}
+          className="
+            bg-blue-600
+            hover:bg-blue-700
+            transition
+            text-white
+            px-6
+            py-3
+            rounded-xl
+            disabled:opacity-50
+          "
+        >
+          {loading
+            ? "در حال ساخت..."
+            : "ساخت مهمان"}
+        </button>
 
-          </button>
+      </div>
+
+      {/* MESSAGE */}
+      {message && (
+
+        <div className="text-sm text-red-600">
+
+          {message}
 
         </div>
 
-        {/* MESSAGE */}
-        {message && (
+      )}
 
-          <div className="text-sm text-red-600">
-
-            {message}
-
-          </div>
-
-        )}
-
-      </div>
+    </div>
 
       {/* SEARCH */}
       <div className="bg-white p-3 rounded shadow">
@@ -376,7 +419,7 @@ return (
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
         <StatsCard
           title="مهمان‌ها"
