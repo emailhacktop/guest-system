@@ -1,3 +1,4 @@
+import rateLimit from "express-rate-limit"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import express from "express"
@@ -12,13 +13,45 @@ dotenv.config()
 const app = express()
 
 app.use(cors({
+
   origin: [
+
     "http://localhost:3000",
+
     "http://192.168.1.106:3000"
+
   ],
+
+  methods: [
+
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE"
+
+  ],
+
   credentials: true
 }))
+
 app.use(express.json())
+
+// ========================
+// RATE LIMIT
+// ========================
+const apiLimiter = rateLimit({
+
+  windowMs: 15 * 60 * 1000,
+
+  max: 100,
+
+  message: {
+    success: false,
+    message: "Too many requests"
+  }
+})
+
+app.use("/api", apiLimiter)
 
 // ========================
 // SUPABASE
