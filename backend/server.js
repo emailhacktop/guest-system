@@ -670,43 +670,69 @@ app.post(
 // EXPORT EXCEL
 // ========================
 app.get(
-  "/api/guests/export",
-  verifyToken,
-  async (req, res) => {
+"/api/guests/export",
+verifyToken,
+async (req, res) => {
 
-    const { data } =
-      await supabase
-        .from("guests")
-        .select("*")
+const { data } =
+  await supabase
+    .from("guests")
+    .select(`
+      title,
+      name,
+      guests_count,
+      token,
+      views,
+      max_views,
+      active
+    `)
 
-    const wb =
-      xlsx.utils.book_new()
+// ترتیب دلخواه ستون‌ها
+const formatted =
+  data.map((g) => ({
+    "عنوان": g.title,
+    "نام مهمان": g.name,
+    "تعداد نفرات": g.guests_count,
+    "توکن": g.token,
+    "بازدید": g.views,
+    "حداکثر": g.max_views,
+    "وضعیت":
+      g.active
+        ? "فعال"
+        : "مسدود"
+  }))
 
-    const ws =
-      xlsx.utils.json_to_sheet(data)
+const wb =
+  xlsx.utils.book_new()
 
-    xlsx.utils.book_append_sheet(
-      wb,
-      ws,
-      "guests"
-    )
+const ws =
+  xlsx.utils.json_to_sheet(
+    formatted
+  )
 
-    const file =
-      xlsx.write(
-        wb,
-        {
-          type: "buffer",
-          bookType: "xlsx"
-        }
-      )
+xlsx.utils.book_append_sheet(
+  wb,
+  ws,
+  "guests"
+)
 
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=guests.xlsx"
-    )
+const file =
+  xlsx.write(
+    wb,
+    {
+      type: "buffer",
+      bookType: "xlsx"
+    }
+  )
 
-    res.send(file)
-  }
+res.setHeader(
+  "Content-Disposition",
+  "attachment; filename=guests.xlsx"
+)
+
+res.send(file)
+
+}
 )
 
 // ========================
