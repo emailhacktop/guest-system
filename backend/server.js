@@ -65,7 +65,7 @@ function verifyToken(
 // ========================
 // LOGIN
 // ========================
-app.post("/api/login", (req, res) => {
+app.post("/api/login", async (req, res) => {
 
   const { password } = req.body
 
