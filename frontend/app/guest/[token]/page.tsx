@@ -257,7 +257,7 @@ export default function GuestPage({
               sequence={[
                 '',
                 8500,
-                'حضور گرم شما باعث افتخار ماست'
+                'بااحترام حضور گرم شمارا دراین مراسم ارج می نهیم'
               ]}
               speed={45}
               cursor={false}

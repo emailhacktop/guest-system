@@ -299,8 +299,8 @@ return (
             خانواده
           </option>
 
-          <option value="یآقا">
-            یآقا
+          <option value="آقای">
+            آقای
           </option>
 
           <option value="خانم">
