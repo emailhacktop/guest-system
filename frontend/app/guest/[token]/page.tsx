@@ -14,6 +14,17 @@ type ParamsType = Promise<{
   token: string
 }>
 
+type Guest = {
+  name: string
+  title: string
+  token: string
+  max_views: number
+  views: number
+  active?: boolean
+  success?: boolean
+  message?: string
+}
+
 export default function GuestPage({
   params,
 }: {
@@ -23,7 +34,7 @@ export default function GuestPage({
   const { token } = use(params)
 
   const [guest, setGuest] =
-    useState<any>(null)
+    useState<Guest | null>(null)
 
   const [loading, setLoading] =
     useState(true)
@@ -81,19 +92,11 @@ export default function GuestPage({
       return null
     }
 
-    setGuest(data)
+    setGuest(data as Guest)
 
-    return data
+    return data as Guest
   }
-
-  // ========================
-  // ADD VIEW
-  // ========================
-  async function addView() {
-
-    await increaseView(token)
-  }
-
+      
   // ========================
   // INIT
   // ========================
@@ -108,7 +111,18 @@ export default function GuestPage({
 
         if (data) {
 
-          await addView()
+          const result: any =
+            await increaseView(token)
+
+          if (
+            result?.success
+          ) {
+
+            setGuest({
+              ...data,
+              views: result.views
+            })
+          }
         }
 
       } finally {

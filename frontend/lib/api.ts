@@ -1,17 +1,33 @@
 const BASE_URL =
-typeof window !== "undefined"
-? `${window.location.protocol}//${window.location.hostname}:3001/api`
-: "http://localhost:3001/api"
+  process.env.NEXT_PUBLIC_API_URL ||
+  (
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.hostname}:3001/api`
+      : ""
+  )
 
 // ========================
 // AUTH HEADER
 // ========================
-function authHeaders() {
+function authHeaders():
+  HeadersInit {
+
+  if (
+    typeof window === "undefined"
+  ) {
+
+    return {}
+  }
 
   const token =
     localStorage.getItem(
       "admin-token"
     )
+
+  if (!token) {
+
+    return {}
+  }
 
   return {
     Authorization:
@@ -22,9 +38,12 @@ function authHeaders() {
 // ========================
 // HANDLE RESPONSE
 // ========================
-async function handleResponse(
+async function handleResponse<T>(
   res: Response
-) {
+): Promise<T | {
+  success: false
+  message: string
+}>  {
 
   const data =
     await res.json()
@@ -62,7 +81,7 @@ export async function getGuests() {
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -105,7 +124,7 @@ const res =
     }
   )
 
-return await handleResponse(
+return await handleResponse<any>(
   res
 )
 
@@ -152,7 +171,7 @@ export async function editGuestApi(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -189,7 +208,7 @@ export async function deleteGuestApi(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -226,7 +245,7 @@ export async function resetViewsApi(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -269,7 +288,7 @@ export async function toggleGuestApi(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -348,7 +367,7 @@ export async function increaseView(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 
@@ -359,7 +378,10 @@ export async function increaseView(
       error
     )
 
-    return null
+    return {
+      success: false
+    }
+    
   }
 }
 
@@ -393,7 +415,7 @@ export async function changePassword(
         }
       )
 
-    return await handleResponse(
+    return await handleResponse<any>(
       res
     )
 

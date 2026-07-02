@@ -2,11 +2,22 @@
 
 import { useState } from "react"
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (
+    typeof window !== "undefined"
+      ? `${window.location.protocol}//${window.location.hostname}:3001/api`
+      : ""
+  )
+      
 export default function Header() {
 
   // ========================
   // STATE
   // ========================
+  const [changingPassword, setChangingPassword] =
+    useState(false)
+
   const [showPasswordBox, setShowPasswordBox] =
     useState(false)
 
@@ -40,8 +51,15 @@ try {
       "admin-token"
     )
 
+  if (!token) {
+
+    alert("توکن یافت نشد")
+
+    return
+  }
+
   const res = await fetch(
-    "http://localhost:3001/api/guests/export",
+    `${BASE_URL}/guests/export`,
     {
       headers: {
         Authorization:
@@ -95,7 +113,7 @@ try {
 // ========================
 async function changePassword() {
 
-  if (!oldPassword || !newPassword) {
+  if (!oldPassword.trim() || !newPassword.trim()) {
 
     alert("تمام فیلدها الزامی است")
 
@@ -104,13 +122,22 @@ async function changePassword() {
 
   try {
 
+   setChangingPassword(true)
+
     const token =
       localStorage.getItem(
         "admin-token"
       )
 
+    if (!token) {
+
+      alert("توکن یافت نشد")
+
+      return
+    }
+
     const res = await fetch(
-      "http://localhost:3001/api/change-password",
+      `${BASE_URL}/change-password`,
       {
         method: "POST",
 
@@ -135,10 +162,10 @@ async function changePassword() {
     if (data.success) {
 
       alert("رمز تغییر کرد")
+      
+      localStorage.removeItem("admin-token")
 
-      setOldPassword("")
-      setNewPassword("")
-      setShowPasswordBox(false)
+      window.location.href = "/login"
 
     } else {
 
@@ -149,11 +176,15 @@ async function changePassword() {
     }
 
   } catch (err) {
-
+  
     console.error(err)
 
     alert("خطا در ارتباط با سرور")
-  }
+  
+  } finally {
+
+    setChangingPassword(false)
+  }  
 }
 
   // ========================
@@ -255,9 +286,14 @@ async function changePassword() {
 
           <button
             onClick={changePassword}
+            disabled={changingPassword}
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            ذخیره رمز جدید
+            {
+             changingPassword
+               ? "در حال ذخیره..."
+               : "ذخیره رمز جدید"
+            }
           </button>
 
         </div>

@@ -261,6 +261,9 @@ sum + (g.views || 0),
 0
 )
 
+const isSuccess =
+  message === "مهمان ساخته شد"
+  
 // ========================
 // UI
 // ========================
@@ -339,7 +342,7 @@ return (
             value={guestsCount}
             onChange={(e) =>
               setGuestsCount(
-                Number(e.target.value)
+                Number(e.target.value) || 1
               )
             }
           />
@@ -359,7 +362,7 @@ return (
             value={maxViews}
             onChange={(e) =>
               setMaxViews(
-                Number(e.target.value)
+                Number(e.target.value) || 1
               )
             }
           />
@@ -396,7 +399,13 @@ return (
       {/* MESSAGE */}
       {message && (
 
-        <div className="text-sm text-red-600">
+        <div
+          className={`text-sm ${
+            isSuccess
+              ? "text-green-600"
+              : "text-red-600"
+          }`}
+        >
 
           {message}
 

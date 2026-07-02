@@ -177,7 +177,7 @@ export default function GuestTable({
         g.name
       )
 
-    if (!newName) return
+    if (!newName?.trim()) return
 
     const newTitle =
       prompt(
@@ -185,7 +185,7 @@ export default function GuestTable({
         g.title || "خانواده"
       )
 
-    if (!newTitle) return
+    if (!newTitle?.trim()) return
 
     const newGuestsCount =
       prompt(
@@ -193,7 +193,7 @@ export default function GuestTable({
         String(g.guests_count || 1)
       )
 
-    if (!newGuestsCount) return
+    if (!newGuestsCount?.trim()) return
 
     const guestsCountValue =
       Number(newGuestsCount)
@@ -217,7 +217,7 @@ export default function GuestTable({
         String(g.max_views)
       )
 
-    if (!newMax) return
+    if (!newMax?.trim()) return
 
     const maxValue =
       Number(newMax)
@@ -270,7 +270,10 @@ export default function GuestTable({
 
       } else {
 
-        alert("این نام قبلاً ثبت شده است")
+        alert(
+          data?.message ||
+          "خطا در ویرایش"
+        )
       }
 
     } catch (err) {
@@ -283,7 +286,7 @@ export default function GuestTable({
   }
 
   // ========================
-  // EMPTY
+  // DOWNLOAD LINKS
   // ========================
   function downloadLinks() {
 
@@ -293,7 +296,7 @@ export default function GuestTable({
 
     guests.forEach((g) => {
 
-      content += `${g.title} ${g.name}\n`
+      content += `${g.title || "خانواده"} ${g.name}\n`
 
       content += `${window.location.origin}/guest/${g.token}\n\n`
     })

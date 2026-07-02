@@ -1,8 +1,17 @@
 'use client'
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+
+// آدرس API داینامیک
+const BASE_URL =
+  typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}:3001/api`
+    : ""
 
 export default function LoginPage() {
+
+  const router = useRouter()
 
   const [password, setPassword] =
     useState("")
@@ -21,9 +30,14 @@ export default function LoginPage() {
 
       setError("")
 
-      // آدرس API داینامیک
-      const BASE_URL =
-        `${window.location.protocol}//${window.location.hostname}:3001/api`
+      if (!password.trim()) {
+
+        setError("رمز را وارد کنید")
+        
+        setLoading(false)
+        
+        return
+      }
 
       const res = await fetch(
         `${BASE_URL}/login`,
@@ -44,7 +58,12 @@ export default function LoginPage() {
 
       if (!data.success) {
 
-        setError("رمز اشتباه است")
+        setError(
+          data?.message ||
+          "خطا در ورود"
+        )
+        
+        setLoading(false)
 
         return
       }
@@ -56,8 +75,7 @@ export default function LoginPage() {
       )
 
       // ورود
-      window.location.href =
-        "/dashboard"
+      router.push("/dashboard")
 
     } catch (err) {
 
