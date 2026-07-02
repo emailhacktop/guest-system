@@ -40,19 +40,43 @@ export default function GuestTable({
 
     try {
 
-      await navigator.clipboard.writeText(
-        url
-      )
+    if (
+    navigator &&
+    navigator.clipboard &&
+    navigator.clipboard.writeText
+    ) {
 
-      alert("لینک کپی شد")
+    await navigator.clipboard.writeText(url)
+
+    } else {
+
+    const textArea =
+      document.createElement("textarea")
+
+    textArea.value = url
+
+    document.body.appendChild(textArea)
+
+    textArea.select()
+
+    document.execCommand("copy")
+
+    document.body.removeChild(textArea)
+
+    }
+
+    alert("لینک کپی شد")
 
     } catch (err) {
 
-      console.error(
-        "Copy failed:",
-        err
-      )
+    console.error(
+    "Copy failed:",
+    err
+    )
+
+    alert("خطا در کپی لینک")
     }
+
   }
 
   // ========================
