@@ -15,13 +15,7 @@ const app = express()
 
 app.use(cors({
 
-  origin: [
-
-    "http://localhost:3000",
-
-    "http://192.168.1.106:3000"
-
-  ],
+origin: process.env.CLIENT_URLS?.split(",") || [],
 
   methods: [
 
@@ -109,6 +103,17 @@ function verifyToken(
 app.post("/api/login", async (req, res) => {
 
   const { password } = req.body
+
+  if (
+    !password ||
+      password.trim() === ""
+  ) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Password required"
+    })
+  }
 
   const validPassword =
     await bcrypt.compare(
@@ -203,7 +208,7 @@ app.post(
     }
 
     if (
-      !max_views ||
+      typeof max_views !== "number" ||
       max_views < 1 ||
       max_views > 999
     ) {
@@ -216,7 +221,7 @@ app.post(
     }
 
     if (
-      !guests_count ||
+      typeof guests_count !== "number" ||
       guests_count < 1 ||
       guests_count > 99
     ) {
@@ -331,11 +336,12 @@ app.put(
     }
 
     if (
+      typeof max_views !== "number" ||
       max_views < 1 ||
       max_views > 999
     ) {
 
-      return res.json({
+      return res.status(400).json({
         success: false,
         message:
           "حداکثر بازدید باید بین 1 تا 999 باشد"
@@ -343,6 +349,7 @@ app.put(
     }
 
     if (
+      typeof guests_count !== "number" ||
       guests_count < 1 ||
       guests_count > 99
     ) {
@@ -434,7 +441,7 @@ app.delete(
 
     if (error) {
 
-      return res.json({
+      return res.status(500).json({
         success: false,
         error
       })
@@ -470,7 +477,7 @@ app.post(
 
     if (error) {
 
-      return res.json({
+      return res.status(500).json({
         success: false,
         error
       })
@@ -508,7 +515,7 @@ app.post(
 
     if (error) {
 
-      return res.json({
+      return res.status(500).json({
         success: false,
         error
       })
@@ -561,17 +568,25 @@ app.get(
       })
     }
 
-    // LIMIT REACHED
-    if (
-      data.views >= data.max_views
-    ) {
+// LIMIT REACHED تعداد بازدید منقض بشه
+//  لینک غیر غعال اتومات
+ if (
+    data.views >= data.max_views
+  ) {
 
-      return res.status(403).json({
-        success: false,
-        message:
-          "Limit reached"
+    await supabase
+      .from("guests")
+      .update({
+        active: false
       })
-    }
+      .eq("id", data.id)
+
+    return res.status(403).json({
+      success: false,
+      message:
+        "Limit reached"
+    })
+  }
 
     res.json(data)
   }
@@ -626,6 +641,13 @@ app.post(
       guest.max_views
     ) {
 
+      await supabase
+        .from("guests")
+        .update({
+          active: false
+        })
+        .eq("id", guest.id)
+
       return res.status(403).json({
         success: false,
         message:
@@ -634,16 +656,18 @@ app.post(
     }
 
     // increase
+      const newViews = guest.views + 1
+
       const {
         data: updatedGuest,
         error: updateError
       } = await supabase
         .from("guests")
         .update({
-          views: guest.views + 1
+          views: newViews
         })
         .eq("token", token)
-        .lt("views", guest.max_views)
+        .eq("views", guest.views) // جلوگیری از race condition
         .select()
         .single()
 
@@ -652,10 +676,10 @@ app.post(
         !updatedGuest
       ) {
 
-        return res.status(403).json({
+        return res.status(409).json({
           success: false,
           message:
-            "Limit reached"
+            "بازدید همزمان تشخیص داده شد، دوباره تلاش کنید"
         })
       }
 
@@ -757,7 +781,7 @@ app.post(
 
     if (!validOldPassword) {
 
-      return res.json({
+      return res.status(401).json({
         success: false,
         message:
           "رمز فعلی اشتباه است"
@@ -770,7 +794,7 @@ app.post(
       newPassword.length < 4
     ) {
 
-      return res.json({
+      return res.status(400).json({
         success: false,
         message:
           "رمز جدید حداقل 4 کاراکتر باشد"
@@ -794,13 +818,16 @@ app.post(
 // ========================
 // START SERVER
 // ========================
+const PORT =
+  process.env.PORT || 3001
+
 app.listen(
-  3001,
+  PORT,
   "0.0.0.0",
   () => {
-
+    
     console.log(
-      "Server running on port 3001"
+      `Server running on port ${PORT}`
     )
   }
 )
