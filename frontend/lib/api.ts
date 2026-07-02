@@ -84,6 +84,7 @@ export async function createGuest(
 data: {
 name: string
 title: string
+guests_count: number
 max_views: number
 }
 ) {
@@ -130,6 +131,7 @@ export async function editGuestApi(
   data: {
     name: string
     title: string
+    guests_count: number
     max_views: number
   }
 ) {

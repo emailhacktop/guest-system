@@ -21,14 +21,19 @@ export default function LoginPage() {
 
       setError("")
 
+      // آدرس API داینامیک
+      const BASE_URL =
+        `${window.location.protocol}//${window.location.hostname}:3001/api`
+
       const res = await fetch(
-        "http://localhost:3001/api/login",
+        `${BASE_URL}/login`,
         {
           method: "POST",
+
           headers: {
-            "Content-Type":
-              "application/json"
+            "Content-Type": "application/json"
           },
+
           body: JSON.stringify({
             password
           })
