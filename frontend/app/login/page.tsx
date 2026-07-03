@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation"
 
 // آدرس API داینامیک
 const BASE_URL =
-  typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.hostname}:3001/api`
-    : ""
+`${window.location.protocol}//${window.location.hostname}:3001/api`
 
 export default function LoginPage() {
 
@@ -33,9 +31,7 @@ export default function LoginPage() {
       if (!password.trim()) {
 
         setError("رمز را وارد کنید")
-        
-        setLoading(false)
-        
+                
         return
       }
 
@@ -63,8 +59,6 @@ export default function LoginPage() {
           "خطا در ورود"
         )
         
-        setLoading(false)
-
         return
       }
 

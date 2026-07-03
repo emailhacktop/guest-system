@@ -1,4 +1,5 @@
 'use client'
+import { useState } from "react"
 
 import {
   deleteGuestApi,
@@ -28,6 +29,8 @@ export default function GuestTable({
   onRefresh
 }: Props) {
 
+ const [loading, setLoading] = useState(false)
+
   // ========================
   // COPY LINK
   // ========================
@@ -35,16 +38,16 @@ export default function GuestTable({
     token: string
   ) {
 
+    if (loading) return
+
     const url =
       `${window.location.origin}/guest/${token}`
 
     try {
 
-    if (
-    navigator &&
-    navigator.clipboard &&
-    navigator.clipboard.writeText
-    ) {
+    setLoading(true)
+
+if (navigator.clipboard?.writeText) {
 
     await navigator.clipboard.writeText(url)
 
@@ -75,6 +78,10 @@ export default function GuestTable({
     )
 
     alert("خطا در کپی لینک")
+
+    } finally {
+
+    setLoading(false)
     }
 
   }
@@ -85,6 +92,8 @@ export default function GuestTable({
   async function deleteGuest(
     id: string
   ) {
+    
+    if (loading) return
 
     const ok =
       confirm("آیا حذف شود؟")
@@ -92,6 +101,8 @@ export default function GuestTable({
     if (!ok) return
 
     try {
+
+      setLoading(true)
 
       const data =
         await deleteGuestApi(id)
@@ -116,6 +127,10 @@ export default function GuestTable({
         "Delete error:",
         err
       )
+
+    } finally {
+
+      setLoading(false)
     }
   }
 
@@ -127,7 +142,11 @@ export default function GuestTable({
     token: string
   ) {
 
+    if (loading) return
+
     try {
+
+      setLoading(true)
 
       const data =
         await resetViewsApi(id)
@@ -152,6 +171,10 @@ export default function GuestTable({
         "Reset error:",
         err
       )
+
+    } finally {
+
+      setLoading(false)
     }
   }
 
@@ -163,7 +186,11 @@ export default function GuestTable({
     active: boolean
   ) {
 
+    if (loading) return
+
     try {
+
+      setLoading(true)
 
       const data =
         await toggleGuestApi(
@@ -185,6 +212,9 @@ export default function GuestTable({
         "Toggle error:",
         err
       )
+    } finally {
+
+      setLoading(false)
     }
   }
 
@@ -194,6 +224,8 @@ export default function GuestTable({
   async function editGuest(
     g: Guest
   ) {
+
+    if (loading) return
 
     const newName =
       prompt(
@@ -262,6 +294,8 @@ export default function GuestTable({
 
     try {
 
+      setLoading(true)
+
       const data =
           await editGuestApi(
             g.id,
@@ -306,47 +340,69 @@ export default function GuestTable({
         "Edit error:",
         err
       )
+
+    } finally {
+
+      setLoading(false)
     }
   }
 
   // ========================
   // DOWNLOAD LINKS
   // ========================
-  function downloadLinks() {
+  async function downloadLinks() {
 
+    if (loading) return
     if (!guests) return
 
-    let content = ""
+    try {
 
-    guests.forEach((g) => {
+      setLoading(true)
 
-      content += `${g.title || "خانواده"} ${g.name}\n`
+      let content = ""
 
-      content += `${window.location.origin}/guest/${g.token}\n\n`
-    })
+      guests.forEach((g) => {
 
-    const blob =
-      new Blob(
-        [content],
-        {
-          type: "text/plain"
-        }
+        content += `${g.title || "خانواده"} ${g.name}\n`
+
+        content += `${window.location.origin}/guest/${g.token}\n\n`
+      })
+
+      const blob =
+        new Blob(
+          [content],
+          {
+            type: "text/plain"
+          }
+        )
+
+      const url =
+        URL.createObjectURL(blob)
+
+      const a =
+        document.createElement("a")
+
+       a.href = url
+
+       a.download =
+         "guest-links.txt"
+
+       a.click()
+
+       URL.revokeObjectURL(url)
+
+    } catch (err) {
+
+      console.error(
+        "Download links error:",
+        err
       )
 
-    const url =
-      URL.createObjectURL(blob)
+    } finally {
+             
+      setLoading(false)
+    }
 
-    const a =
-      document.createElement("a")
-
-    a.href = url
-
-    a.download =
-      "guest-links.txt"
-
-    a.click()
-
-    URL.revokeObjectURL(url)
   }
 
 // ========================
@@ -354,7 +410,11 @@ export default function GuestTable({
 // ========================
 async function downloadBackup() {
 
+  if (loading) return
+
   try {
+
+    setLoading(true)
 
     const token =
       localStorage.getItem(
@@ -409,6 +469,10 @@ async function downloadBackup() {
       "Backup error:",
       err
     )
+
+  } finally {
+
+      setLoading(false)
   }
 }
 
@@ -416,10 +480,11 @@ async function downloadBackup() {
 // RESTORE BACKUP
 // ========================
 async function restoreBackup(
-  e: any
+  e: React.ChangeEvent<HTMLInputElement>
 ) {
 
   try {
+    setLoading(true)
 
     const file =
       e.target.files?.[0]
@@ -493,16 +558,22 @@ async function restoreBackup(
     )
     }
 
-  } catch (err) {
+    } catch (err) {
 
-    console.error(
-      "Restore error:",
-      err
-    )
-    alert(
-    "خطا در ریستور — Console را چک کن"
-    )
-  }
+      console.error(
+        "Restore error:",
+        err
+      )
+      alert(
+      "خطا در ریستور — Console را چک کن"
+      )
+    }
+
+    finally {
+
+      setLoading(false)
+
+    }
 }
   
   // ========================
@@ -516,55 +587,42 @@ async function restoreBackup(
 
       {/* DOWNLOAD LINKS */}
       <button
+        disabled={loading}
         onClick={downloadLinks}
-        className="
-          bg-emerald-600
-          hover:bg-emerald-700
-          text-white
-          px-4
-          py-2
-          rounded-lg
-          text-sm
-          transition
-        "
+          className={`text-white px-4 py-2 rounded-lg text-sm transition ${
+            loading
+              ? "bg-gray-400"
+              : "bg-emerald-600 hover:bg-emerald-700"
+          }`}
       >
         دانلود لینک‌ها
       </button>
 
       {/* BACKUP */}
       <button
+        disabled={loading}
         onClick={downloadBackup}
-        className="
-          bg-blue-600
-          hover:bg-blue-700
-          text-white
-          px-4
-          py-2
-          rounded-lg
-          text-sm
-          transition
-        "
+        className={`text-white px-4 py-2 rounded-lg text-sm transition ${
+          loading
+            ? "bg-gray-400"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
       >
         بکاپ JSON
       </button>
 
       {/* RESTORE */}
-      <label
-        className="
-          bg-orange-600
-          hover:bg-orange-700
-          text-white
-          px-4
-          py-2
-          rounded-lg
-          text-sm
-          transition
-          cursor-pointer
-        "
-      >
+        <label
+          className={`text-white px-4 py-2 rounded-lg text-sm transition cursor-pointer ${
+            loading
+              ? "bg-gray-400"
+              : "bg-orange-600 hover:bg-orange-700"
+          }`}
+        >
         ریستور بکاپ
 
         <input
+          disabled={loading}
           type="file"
           accept=".json"
           hidden
@@ -695,48 +753,78 @@ async function restoreBackup(
 
                 {/* OPEN */}
                 <a
-                  href={`/guest/${g.token}`}
+                  rel="noopener noreferrer"
+                  href={
+                    loading
+                      ? "#"
+                      : `/guest/${g.token}`
+                  }
                   target="_blank"
-                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                  onClick={(e) => {
+                    if (loading) {
+                      e.preventDefault()
+                    }
+                  }}
+                  className={`text-white px-2 py-1 rounded text-xs ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 hover:bg-blue-600"
+                  }`}
                 >
                   باز کردن
                 </a>
 
                 {/* COPY */}
                 <button
+                  disabled={loading}
                   onClick={() =>
                     copyLink(g.token)
                   }
-                  className="bg-gray-600 text-white px-2 py-1 rounded text-xs"
+                  className={`text-white px-2 py-1 rounded text-xs ${
+                    loading
+                      ? "bg-gray-400"
+                      : "bg-gray-600 hover:bg-gray-700"
+                  }`}
                 >
                   کپی لینک
                 </button>
 
                 {/* EDIT */}
                 <button
+                  disabled={loading}
                   onClick={() =>
                     editGuest(g)
                   }
-                  className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+                  className={`text-white px-2 py-1 rounded text-xs ${
+                    loading
+                      ? "bg-gray-400"
+                      : "bg-yellow-500 hover:bg-yellow-600"
+                  }`}
                 >
                   ویرایش
                 </button>
 
                 {/* RESET */}
                 <button
+                  disabled={loading}
                   onClick={() =>
                     resetViews(
                       g.id,
                       g.token
                     )
                   }
-                  className="bg-indigo-600 text-white px-2 py-1 rounded text-xs"
+                  className={`text-white px-2 py-1 rounded text-xs ${
+                    loading
+                      ? "bg-gray-400"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
                 >
                   ریست
                 </button>
 
                 {/* TOGGLE */}
                 <button
+                  disabled={loading}
                   onClick={() =>
                     toggleGuest(
                       g.id,
@@ -744,9 +832,11 @@ async function restoreBackup(
                     )
                   }
                   className={`px-2 py-1 rounded text-xs text-white ${
-                    g.active
-                      ? "bg-orange-600"
-                      : "bg-green-600"
+                    loading
+                      ? "bg-gray-400"
+                      : g.active
+                        ? "bg-orange-600 hover:bg-orange-700"
+                        : "bg-green-600 hover:bg-green-700"
                   }`}
                 >
                   {g.active
@@ -756,10 +846,15 @@ async function restoreBackup(
 
                 {/* DELETE */}
                 <button
+                  disabled={loading}
                   onClick={() =>
                     deleteGuest(g.id)
                   }
-                  className="bg-red-600 text-white px-2 py-1 rounded text-xs"
+                  className={`text-white px-2 py-1 rounded text-xs ${
+                    loading
+                      ? "bg-gray-400"
+                      : "bg-red-600 hover:bg-red-700"
+                  }`}
                 >
                   حذف
                 </button>

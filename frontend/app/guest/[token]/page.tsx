@@ -92,48 +92,69 @@ export default function GuestPage({
       return null
     }
 
-    setGuest(data as Guest)
-
+    
     return data as Guest
   }
       
   // ========================
   // INIT
   // ========================
-  useEffect(() => {
+// ========================
+// INIT
+// ========================
+useEffect(() => {
 
-    const run = async () => {
+const run = async () => {
 
-      try {
+try {
 
-        const data =
+  const data =
+    await loadGuest()
+
+  if (data) {
+
+    try {
+
+      const result: any =
+        await increaseView(token)
+
+      if (result?.success) {
+
+        setGuest({
+          ...data,
+          views: result.views
+        })
+
+      } else if (result?.retry) {
+
+        const refreshed =
           await loadGuest()
 
-        if (data) {
+        if (refreshed) {
 
-          const result: any =
-            await increaseView(token)
-
-          if (
-            result?.success
-          ) {
-
-            setGuest({
-              ...data,
-              views: result.views
-            })
-          }
+          setGuest(refreshed)
         }
-
-      } finally {
-
-        setLoading(false)
       }
+
+    } catch (err) {
+
+      console.error(
+        "Increase view error:",
+        err
+      )
     }
+  }
 
-    run()
+} finally {
 
-  }, [token])
+  setLoading(false)
+}
+
+}
+
+run()
+
+}, [token])
 
   // ========================
   // LOADING
