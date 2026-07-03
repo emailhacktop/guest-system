@@ -53,7 +53,16 @@ app.use("/api", apiLimiter)
 // ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_KEY,
+  {
+    global: {
+      fetch: (...args) =>
+        fetch(...args, {
+          signal:
+            AbortSignal.timeout(20000)
+        })
+    }
+  }
 )
 
 // ========================
@@ -668,6 +677,7 @@ app.post(
         })
         .eq("token", token)
         .eq("views", guest.views) // جلوگیری از race condition
+        .limit(1)
         .select()
         .single()
 
@@ -678,6 +688,7 @@ app.post(
 
         return res.status(409).json({
           success: false,
+          retry: true,
           message:
             "بازدید همزمان تشخیص داده شد، دوباره تلاش کنید"
         })
@@ -805,6 +816,14 @@ if (!Array.isArray(guests)) {
   })
 }
 
+if (guests.length === 0) {
+
+  return res.status(400).json({
+    success: false,
+    message: "Backup file is empty"
+  })
+}
+
 try {
 
   // ========================
@@ -814,7 +833,7 @@ try {
     await supabase
       .from("guests")
       .delete()
-      .gte("views", 0)
+      .not("id", "is", null)
 
   if (deleteError) {
 
