@@ -814,7 +814,7 @@ try {
     await supabase
       .from("guests")
       .delete()
-      .neq("id", "0")
+      .gte("views", 0)
 
   if (deleteError) {
 
@@ -827,33 +827,34 @@ try {
   // ========================
   // CLEAN BACKUP DATA
   // ========================
+  // پاکسازی داده‌ها قبل از restore
   const cleanedGuests =
-    guests.map((g) => ({
+  guests.map((g) => ({
 
-      // id حذف شود
-      // تا Supabase خودش id جدید بسازد
+  name:
+    g.name || "",
 
-      name:
-        g.name || "",
+  title:
+    g.title || "خانواده",
 
-      title:
-        g.title || "خانواده",
+  token:
+    g.token,
 
-      token:
-        g.token,
+  guests_count:
+    Number(g.guests_count || 1),
 
-      guests_count:
-        Number(g.guests_count || 1),
+  max_views:
+    Number(g.max_views || 1),
 
-      max_views:
-        Number(g.max_views || 1),
+  views:
+    Number(g.views || 0),
 
-      views:
-        Number(g.views || 0),
+  active:
+    g.active ?? true
 
-      active:
-        g.active ?? true
-    }))
+  // عمداً id و created_at ریستور نمی‌شوند
+
+  }))
 
   // ========================
   // INSERT BACKUP
