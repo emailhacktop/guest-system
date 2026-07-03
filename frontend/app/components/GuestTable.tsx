@@ -432,6 +432,11 @@ async function restoreBackup(
     const json =
       JSON.parse(text)
 
+    console.log(
+    "BACKUP JSON:",
+    json
+    )
+
     const token =
       localStorage.getItem(
         "admin-token"
@@ -458,22 +463,34 @@ async function restoreBackup(
     const data =
       await res.json()
 
+    console.log(
+     "RESTORE RESPONSE:",
+      data
+     )
+
     if (data.success) {
 
-      alert(
-        "بکاپ با موفقیت ریستور شد"
-      )
+    alert(
+    "بکاپ با موفقیت ریستور شد"
+    )
 
-      if (onRefresh) {
+    if (onRefresh) {
 
-        await onRefresh()
-      }
+    await onRefresh()
+
+    }
 
     } else {
 
-      alert(
-        "خطا در ریستور"
-      )
+    console.error(
+    "RESTORE API ERROR:",
+    data
+    )
+
+    alert(
+    data?.message ||
+    JSON.stringify(data)
+    )
     }
 
   } catch (err) {
@@ -482,24 +499,12 @@ async function restoreBackup(
       "Restore error:",
       err
     )
+    alert(
+    "خطا در ریستور — Console را چک کن"
+    )
   }
 }
   
-  if (
-    !guests ||
-    guests.length === 0
-  ) {
-
-    return (
-
-      <div className="bg-white p-4 rounded shadow text-gray-500">
-
-        هیچ مهمانی وجود ندارد
-
-      </div>
-    )
-  }
-
   // ========================
   // UI
   // ========================
@@ -613,7 +618,7 @@ async function restoreBackup(
 
         <tbody>
 
-          {guests.map((g) => (
+          {guests?.map((g) => (
 
             <tr
               key={g.id}
@@ -763,7 +768,21 @@ async function restoreBackup(
 
             </tr>
 
-          ))}
+              ))}
+
+              {(!guests || guests.length === 0) && (
+
+              <tr>
+
+              <td colSpan={8} className=" p-6 text-center text-gray-500 " >
+
+              هیچ مهمانی وجود ندارد
+
+              </td>
+
+             </tr>
+
+            )}
 
         </tbody>
 
