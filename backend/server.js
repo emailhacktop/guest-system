@@ -788,65 +788,110 @@ app.get(
 // RESTORE JSON
 // ========================
 app.post(
-  "/api/restore",
-  verifyToken,
-  async (req, res) => {
+"/api/restore",
+verifyToken,
+async (req, res) => {
 
-    const guests = req.body
+const guests = req.body
 
-    if (
-      !Array.isArray(guests)
-    ) {
+// ========================
+// VALIDATION
+// ========================
+if (!Array.isArray(guests)) {
 
-      return res.status(400).json({
-        success: false,
-        message: "Invalid backup file"
-      })
-    }
+  return res.status(400).json({
+    success: false,
+    message: "Invalid backup file"
+  })
+}
 
-    try {
+try {
 
-      // پاک کردن کل جدول
-      const { error: deleteError } =
-        await supabase
-          .from("guests")
-          .delete()
-          .neq("id", "0")
+  // ========================
+  // DELETE ALL OLD DATA
+  // ========================
+  const { error: deleteError } =
+    await supabase
+      .from("guests")
+      .delete()
+      .neq("id", "0")
 
-      if (deleteError) {
+  if (deleteError) {
 
-        return res.status(500).json({
-          success: false,
-          error: deleteError
-        })
-      }
-
-      // اضافه کردن بکاپ
-      const { error: insertError } =
-        await supabase
-          .from("guests")
-          .insert(guests)
-
-      if (insertError) {
-
-        return res.status(500).json({
-          success: false,
-          error: insertError
-        })
-      }
-
-      res.json({
-        success: true
-      })
-
-    } catch (err) {
-
-      return res.status(500).json({
-        success: false,
-        message: "Restore failed"
-      })
-    }
+    return res.status(500).json({
+      success: false,
+      error: deleteError
+    })
   }
+
+  // ========================
+  // CLEAN BACKUP DATA
+  // ========================
+  const cleanedGuests =
+    guests.map((g) => ({
+
+      // id حذف شود
+      // تا Supabase خودش id جدید بسازد
+
+      name:
+        g.name || "",
+
+      title:
+        g.title || "خانواده",
+
+      token:
+        g.token,
+
+      guests_count:
+        Number(g.guests_count || 1),
+
+      max_views:
+        Number(g.max_views || 1),
+
+      views:
+        Number(g.views || 0),
+
+      active:
+        g.active ?? true
+    }))
+
+  // ========================
+  // INSERT BACKUP
+  // ========================
+  const { error: insertError } =
+    await supabase
+      .from("guests")
+      .insert(cleanedGuests)
+
+  if (insertError) {
+
+    return res.status(500).json({
+      success: false,
+      error: insertError
+    })
+  }
+
+  // ========================
+  // SUCCESS
+  // ========================
+  res.json({
+    success: true
+  })
+
+} catch (err) {
+
+  console.error(
+    "Restore error:",
+    err
+  )
+
+  return res.status(500).json({
+    success: false,
+    message: "Restore failed"
+  })
+}
+
+}
 )
 
 // ========================
