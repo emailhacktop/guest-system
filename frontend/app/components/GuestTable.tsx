@@ -349,6 +349,142 @@ export default function GuestTable({
     URL.revokeObjectURL(url)
   }
 
+// ========================
+// DOWNLOAD BACKUP
+// ========================
+async function downloadBackup() {
+
+  try {
+
+    const token =
+      localStorage.getItem(
+        "admin-token"
+      )
+
+    const res = await fetch(
+      `${window.location.protocol}//${window.location.hostname}:3001/api/backup`,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    )
+
+    const data =
+      await res.json()
+
+    const blob =
+      new Blob(
+        [
+          JSON.stringify(
+            data,
+            null,
+            2
+          )
+        ],
+        {
+          type: "application/json"
+        }
+      )
+
+    const url =
+      URL.createObjectURL(blob)
+
+    const a =
+      document.createElement("a")
+
+    a.href = url
+
+    a.download =
+      "backup-guests.json"
+
+    a.click()
+
+    URL.revokeObjectURL(url)
+
+  } catch (err) {
+
+    console.error(
+      "Backup error:",
+      err
+    )
+  }
+}
+
+// ========================
+// RESTORE BACKUP
+// ========================
+async function restoreBackup(
+  e: any
+) {
+
+  try {
+
+    const file =
+      e.target.files?.[0]
+
+    if (!file) return
+
+    const text =
+      await file.text()
+
+    const json =
+      JSON.parse(text)
+
+    const token =
+      localStorage.getItem(
+        "admin-token"
+      )
+
+    const res = await fetch(
+      `${window.location.protocol}//${window.location.hostname}:3001/api/restore`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${token}`
+        },
+
+        body:
+          JSON.stringify(json)
+      }
+    )
+
+    const data =
+      await res.json()
+
+    if (data.success) {
+
+      alert(
+        "بکاپ با موفقیت ریستور شد"
+      )
+
+      if (onRefresh) {
+
+        await onRefresh()
+      }
+
+    } else {
+
+      alert(
+        "خطا در ریستور"
+      )
+    }
+
+  } catch (err) {
+
+    console.error(
+      "Restore error:",
+      err
+    )
+  }
+}
+  
   if (
     !guests ||
     guests.length === 0
@@ -371,8 +507,9 @@ export default function GuestTable({
 
     <div className="bg-white p-4 rounded shadow overflow-x-auto">
     {/* TOP ACTIONS */}
-    <div className="flex justify-end mb-4">
+    <div className="flex gap-3 justify-end mb-4 flex-wrap">
 
+      {/* DOWNLOAD LINKS */}
       <button
         onClick={downloadLinks}
         className="
@@ -386,8 +523,49 @@ export default function GuestTable({
           transition
         "
       >
-        دانلود لینک‌ ها
+        دانلود لینک‌ها
       </button>
+
+      {/* BACKUP */}
+      <button
+        onClick={downloadBackup}
+        className="
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+          px-4
+          py-2
+          rounded-lg
+          text-sm
+          transition
+        "
+      >
+        بکاپ JSON
+      </button>
+
+      {/* RESTORE */}
+      <label
+        className="
+          bg-orange-600
+          hover:bg-orange-700
+          text-white
+          px-4
+          py-2
+          rounded-lg
+          text-sm
+          transition
+          cursor-pointer
+        "
+      >
+        ریستور بکاپ
+
+        <input
+          type="file"
+          accept=".json"
+          hidden
+          onChange={restoreBackup}
+        />
+      </label>
 
     </div>
 

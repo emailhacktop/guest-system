@@ -261,6 +261,13 @@ sum + (g.views || 0),
 0
 )
 
+const totalGuestsCount =
+guests.reduce(
+(sum, g) =>
+sum + (g.guests_count || 0),
+0
+)
+
 const isSuccess =
   message === "مهمان ساخته شد"
   
@@ -432,11 +439,16 @@ return (
       </div>
 
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
 
         <StatsCard
-          title="مهمان‌ها"
+          title="تعداد کارت دعوت"
           value={guests.length}
+        />
+
+        <StatsCard
+          title="جمع نفرات"
+          value={totalGuestsCount}
         />
 
         <StatsCard
