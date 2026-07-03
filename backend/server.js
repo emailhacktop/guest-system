@@ -760,6 +760,96 @@ res.send(file)
 )
 
 // ========================
+// BACKUP JSON
+// ========================
+app.get(
+  "/api/backup",
+  verifyToken,
+  async (req, res) => {
+
+    const { data, error } =
+      await supabase
+        .from("guests")
+        .select("*")
+
+    if (error) {
+
+      return res.status(500).json({
+        success: false,
+        error
+      })
+    }
+
+    res.json(data)
+  }
+)
+
+// ========================
+// RESTORE JSON
+// ========================
+app.post(
+  "/api/restore",
+  verifyToken,
+  async (req, res) => {
+
+    const guests = req.body
+
+    if (
+      !Array.isArray(guests)
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid backup file"
+      })
+    }
+
+    try {
+
+      // پاک کردن کل جدول
+      const { error: deleteError } =
+        await supabase
+          .from("guests")
+          .delete()
+          .neq("id", "0")
+
+      if (deleteError) {
+
+        return res.status(500).json({
+          success: false,
+          error: deleteError
+        })
+      }
+
+      // اضافه کردن بکاپ
+      const { error: insertError } =
+        await supabase
+          .from("guests")
+          .insert(guests)
+
+      if (insertError) {
+
+        return res.status(500).json({
+          success: false,
+          error: insertError
+        })
+      }
+
+      res.json({
+        success: true
+      })
+
+    } catch (err) {
+
+      return res.status(500).json({
+        success: false,
+        message: "Restore failed"
+      })
+    }
+  }
+)
+
+// ========================
 // CHANGE PASSWORD
 // ========================
 app.post(
