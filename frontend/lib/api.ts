@@ -1,10 +1,4 @@
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (
-    typeof window !== "undefined"
-      ? `${window.location.protocol}//${window.location.hostname}:3001/api`
-      : ""
-  )
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
 // ========================
 // AUTH HEADER
