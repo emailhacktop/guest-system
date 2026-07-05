@@ -8,7 +8,6 @@ import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
 
-import fetch from "node-fetch"
 global.fetch = fetch
 
 dotenv.config()
@@ -56,11 +55,7 @@ app.use("/api", apiLimiter)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY,
-  {
-    global: {
-      fetch
-    }
-  }
+  
 )
 
 // ========================
@@ -828,19 +823,19 @@ try {
   // ========================
   // DELETE ALL OLD DATA
   // ========================
-  const { error: deleteError } =
-   await supabase
-     .from("guests")
-     .delete()
-     .not("id", "is", null)
+  // const { error: deleteError } =
+  //  await supabase
+  //    .from("guests")
+  //    .delete()
+  //    .not("id", "is", null)
 
-  if (deleteError) {
+  // if (deleteError) {
 
-    return res.status(500).json({
-      success: false,
-      error: deleteError
-    })
-  }
+  //   return res.status(500).json({
+  //     success: false,
+  //     error: deleteError
+  //   })
+  // }
 
   // ========================
   // CLEAN BACKUP DATA
