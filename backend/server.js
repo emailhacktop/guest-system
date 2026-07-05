@@ -775,10 +775,9 @@ res.send(file)
 // ========================
 app.get("/api/backup", verifyToken, async (req, res) => {
 
-  const { data, error } =
-    await supabase
-      .from("guests")
-      .select("*")
+  const { data, error } = await supabase
+    .from("guests")
+    .select("*")
 
   if (error) {
     return res.status(500).json({
@@ -793,12 +792,13 @@ app.get("/api/backup", verifyToken, async (req, res) => {
     "attachment; filename=backup.json"
   )
 
-  return res.send(JSON.stringify(data, null, 2))
+  return res.status(200).send(JSON.stringify(data, null, 2))
 })
 
 // ========================
 // RESTORE JSON
 // ========================
+app.use(express.json({ limit: "10mb" }))
 app.post(
 "/api/restore",
 verifyToken,
@@ -833,8 +833,8 @@ try {
   const { error: deleteError } =
     await supabase
       .from("guests")
-      .delete()
-      .not("id", "is", null)
+      .delete().neq("id", "")
+//      .not("id", "is", null)
 
   if (deleteError) {
 
