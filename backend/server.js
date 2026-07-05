@@ -831,10 +831,10 @@ try {
   // DELETE ALL OLD DATA
   // ========================
   const { error: deleteError } =
-    await supabase
-      .from("guests")
-      .delete().neq("id", "")
-//      .not("id", "is", null)
+   await supabase
+     .from("guests")
+     .delete()
+     .not("id", "is", null)
 
   if (deleteError) {
 
