@@ -8,6 +8,8 @@ import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
 
+import fetch from "node-fetch"
+global.fetch = fetch
 
 dotenv.config()
 
@@ -56,11 +58,7 @@ const supabase = createClient(
   process.env.SUPABASE_KEY,
   {
     global: {
-      fetch: (...args) =>
-        fetch(...args, {
-          signal:
-            AbortSignal.timeout(20000)
-        })
+      fetch
     }
   }
 )
