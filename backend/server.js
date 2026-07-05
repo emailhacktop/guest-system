@@ -773,27 +773,28 @@ res.send(file)
 // ========================
 // BACKUP JSON
 // ========================
-app.get(
-  "/api/backup",
-  verifyToken,
-  async (req, res) => {
+app.get("/api/backup", verifyToken, async (req, res) => {
 
-    const { data, error } =
-      await supabase
-        .from("guests")
-        .select("*")
+  const { data, error } =
+    await supabase
+      .from("guests")
+      .select("*")
 
-    if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
-    }
-
-    res.json(data)
+  if (error) {
+    return res.status(500).json({
+      success: false,
+      error
+    })
   }
-)
+
+  res.setHeader("Content-Type", "application/json")
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=backup.json"
+  )
+
+  return res.send(JSON.stringify(data, null, 2))
+})
 
 // ========================
 // RESTORE JSON
