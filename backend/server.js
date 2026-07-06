@@ -1,3 +1,4 @@
+import helmet from "helmet"
 import crypto from "crypto"
 import rateLimit from "express-rate-limit"
 import bcrypt from "bcrypt"
@@ -13,6 +14,13 @@ import xlsx from "xlsx"
 dotenv.config()
 
 const app = express()
+
+//اضافه کردن Helmet برای Security Headers
+app.use(
+helmet({
+crossOriginResourcePolicy: false
+})
+)
 
 app.use(cors({
 
@@ -49,7 +57,10 @@ return res.status(413).json({
 }
 
 // JSON خراب
-if (err instanceof SyntaxError) {
+if (
+  err instanceof SyntaxError &&
+  "body" in err
+) {
 
 return res.status(400).json({
   success: false,
@@ -72,7 +83,7 @@ const apiLimiter = rateLimit({
 
   message: {
     success: false,
-    message: "Too many requests"
+    message: "تعداد درخواست‌ها بیش از حد مجاز است"
   }
 })
 
@@ -111,7 +122,7 @@ function verifyToken(
 
     return res.status(401).json({
       success: false,
-      message: "No token"
+      message: "توکن ارسال نشده است"
     })
   }
 
@@ -131,7 +142,7 @@ function verifyToken(
 
     return res.status(401).json({
       success: false,
-      message: "Invalid token"
+      message: "توکن نامعتبر است"
     })
   }
 }
@@ -150,7 +161,7 @@ app.post("/api/login", async (req, res) => {
 
       return res.status(400).json({
         success: false,
-        message: "Password required"
+        message: "رمز عبور الزامی است"
     })
   }
 
@@ -164,7 +175,7 @@ app.post("/api/login", async (req, res) => {
 
     return res.status(401).json({
       success: false,
-      message: "Wrong password"
+      message: "رمز عبور اشتباه است"
     })
   }
 
@@ -593,8 +604,7 @@ app.get(
 
       return res.status(404).json({
         success: false,
-        message:
-          "Guest not found"
+        message: "مهمان یافت نشد"
       })
     }
 
@@ -602,8 +612,7 @@ app.get(
 
       return res.status(403).json({
         success: false,
-        message:
-          "Link blocked"
+        message: "لینک غیرفعال شده است"
       })
     }
 
@@ -622,8 +631,7 @@ app.get(
 
     return res.status(403).json({
       success: false,
-      message:
-        "Limit reached"
+      message: "تعداد بازدید مجاز به پایان رسیده است"
     })
   }
 
@@ -659,8 +667,7 @@ app.post(
 
       return res.status(404).json({
         success: false,
-        message:
-          "Guest not found"
+        message: "مهمان یافت نشد"
       })
     }
 
@@ -669,8 +676,7 @@ app.post(
 
       return res.status(403).json({
         success: false,
-        message:
-          "Link blocked"
+        message: "لینک غیرفعال شده است"
       })
     }
 
@@ -689,8 +695,7 @@ app.post(
 
       return res.status(403).json({
         success: false,
-        message:
-          "Limit reached"
+        message: "تعداد بازدید مجاز به پایان رسیده است"
       })
     }
 
@@ -843,7 +848,7 @@ if (!Array.isArray(guests)) {
 
   return res.status(400).json({
     success: false,
-    message: "Invalid backup file"
+    message: "فایل بکاپ معتبر نیست"
   })
 }
 
@@ -851,7 +856,7 @@ if (guests.length === 0) {
 
   return res.status(400).json({
     success: false,
-    message: "Backup file is empty"
+    message: "فایل بکاپ خالی است"
   })
 }
 
@@ -889,7 +894,7 @@ try {
 
   token:
     g.token ||
-    crypto.randomBytes(16).toString("hex"),
+    crypto.randomBytes(24).toString("base64url"),
 
   guests_count:
     Number(g.guests_count || 1),
@@ -946,7 +951,7 @@ return res.status(500).json({
 
   return res.status(500).json({
     success: false,
-    message: "Restore failed"
+    message: "بازیابی بکاپ با خطا مواجه شد"
   })
 }
 
