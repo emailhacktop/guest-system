@@ -583,7 +583,7 @@ async function restoreBackup(
     )
 
     alert(
-    "سرور پاسخ JSON برنگرداند"
+    "پاسخ سرور:\n" + raw
     )
 
     return
