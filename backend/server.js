@@ -229,11 +229,10 @@ app.get(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json(data)
@@ -350,11 +349,10 @@ app.post(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json({
@@ -471,11 +469,10 @@ app.put(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json({
@@ -504,11 +501,10 @@ app.delete(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json({
@@ -541,11 +537,10 @@ app.post(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json({
@@ -580,11 +575,10 @@ app.post(
 
     if (error) {
 
-    return handleSupabaseError(
-    res,
-    error
-    )
-
+      return res.status(500).json({
+        success: false,
+        error
+      })
     }
 
     res.json({
@@ -601,7 +595,8 @@ app.get(
   "/api/guest/:token",
   async (req, res) => {
 
-    const { token } = req.params
+    const { token } =
+      req.params
 
     const {
       data,
@@ -610,10 +605,12 @@ app.get(
       .from("guests")
       .select("*")
       .eq("token", token)
-      .maybeSingle()
+      .single()
 
-    // فقط اگر رکورد پیدا نشد
-    if (!data) {
+    if (
+      error ||
+      !data
+    ) {
 
       return res.status(404).json({
         success: false,
@@ -621,7 +618,6 @@ app.get(
       })
     }
 
-    // اگر لینک غیرفعال بود
     if (!data.active) {
 
       return res.status(403).json({
@@ -630,22 +626,24 @@ app.get(
       })
     }
 
-    // اگر تعداد بازدید تمام شد
-    //  لینک غیر غعال اتومات
-    if (data.views >= data.max_views) {
+// LIMIT REACHED تعداد بازدید منقض بشه
+//  لینک غیر غعال اتومات
+ if (
+    data.views >= data.max_views
+  ) {
 
-      await supabase
-        .from("guests")
-        .update({
-          active: false
-        })
-        .eq("id", data.id)
-
-      return res.status(403).json({
-        success: false,
-        message: "تعداد بازدید مجاز به پایان رسیده است"
+    await supabase
+      .from("guests")
+      .update({
+        active: false
       })
-    }
+      .eq("id", data.id)
+
+    return res.status(403).json({
+      success: false,
+      message: "تعداد بازدید مجاز به پایان رسیده است"
+    })
+  }
 
     res.json(data)
   }
@@ -728,16 +726,10 @@ app.post(
         .select()
         .single()
 
-      if (updateError) {
-
-        return handleSupabaseError(
-          res,
-          updateError
-        )
-
-      }
-
-      if (!updatedGuest) {
+      if (
+        updateError ||
+        !updatedGuest
+      ) {
 
         return res.status(409).json({
           success: false,
@@ -745,7 +737,6 @@ app.post(
           message:
             "بازدید همزمان تشخیص داده شد، دوباره تلاش کنید"
         })
-
       }
 
       res.json({
@@ -834,12 +825,10 @@ app.get("/api/backup", verifyToken, async (req, res) => {
     .select("*")
 
   if (error) {
-
-  return handleSupabaseError(
-  res,
-  error
-  )
-
+    return res.status(500).json({
+      success: false,
+      error
+    })
   }
 
   res.setHeader("Content-Type", "application/json")
@@ -894,10 +883,10 @@ try {
 
   if (deleteError) {
 
-    return handleSupabaseError(
-      res,
-      deleteError
-    )
+    return res.status(500).json({
+      success: false,
+      error: deleteError
+    })
   }
 
   // ========================
@@ -948,13 +937,12 @@ await supabase
 
 if (insertError) {
 
-return handleSupabaseError(
-  res,
-  insertError
-)
+return res.status(500).json({
+  success: false,
+  error: insertError
+})
 
 }
-
 }
 
   // ========================
