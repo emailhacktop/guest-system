@@ -293,11 +293,11 @@ app.post(
       })
     }
 
-    // token
+    // token برا هر مهمان
     const token =
       crypto
-        .randomBytes(16)
-        .toString("hex")
+        .randomBytes(24)
+        .toString("base64url")
 
     // insert
     const {
