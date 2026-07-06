@@ -559,8 +559,35 @@ async function restoreBackup(
 
     clearTimeout(timeout)
 
-    const data =
-      await res.json()
+    // اول متن خام بخوان
+    const raw =
+    await res.text()
+
+    console.log(
+    "RAW RESTORE RESPONSE:",
+    raw
+    )
+
+    // بعد سعی کن JSON شود
+    let data
+
+    try {
+
+    data = JSON.parse(raw)
+
+    } catch {
+
+    console.error(
+    "RESTORE NOT JSON:",
+    raw
+    )
+
+    alert(
+    "سرور پاسخ JSON برنگرداند"
+    )
+
+    return
+    }
 
     console.log(
      "RESTORE RESPONSE:",
