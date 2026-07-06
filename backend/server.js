@@ -799,7 +799,7 @@ app.get("/api/backup", verifyToken, async (req, res) => {
 // ========================
 // RESTORE JSON
 // ========================
-app.use(express.json({ limit: "10mb" }))
+app.use(express.json({ limit: "20mb" }))
 app.post(
 "/api/restore",
 verifyToken,
