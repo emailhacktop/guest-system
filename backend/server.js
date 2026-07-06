@@ -622,7 +622,11 @@ app.get(
 
       return res.status(403).json({
         success: false,
-        message: "لینک غیرفعال شده است"
+        blocked: true,
+        message:
+          data.views >= data.max_views
+            ? "تعداد بازدید مجاز به پایان رسیده است"
+            : "لینک غیرفعال شده است"
       })
     }
 
