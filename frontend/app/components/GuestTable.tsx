@@ -8,6 +8,9 @@ import {
   toggleGuestApi
 } from "@/lib/api"
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || ""
+
 type Guest = {
   id: string
   name: string
@@ -421,15 +424,25 @@ async function downloadBackup() {
         "admin-token"
       )
 
+    const controller = new AbortController()
+
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, 120000)
+
     const res = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3001/api/backup`,
+      `${BASE_URL}/backup`,
       {
         headers: {
           Authorization:
             `Bearer ${token}`
-        }
+        },
+
+        signal: controller.signal
       }
     )
+
+    clearTimeout(timeout)
 
     const data =
       await res.json()
@@ -507,8 +520,14 @@ async function restoreBackup(
         "admin-token"
       )
 
+    const controller = new AbortController()
+
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, 120000)
+
     const res = await fetch(
-      `${window.location.protocol}//${window.location.hostname}:3001/api/restore`,
+      `${BASE_URL}/restore`,
       {
         method: "POST",
 
@@ -521,9 +540,13 @@ async function restoreBackup(
         },
 
         body:
-          JSON.stringify(json)
+          JSON.stringify(json),
+
+        signal: controller.signal
       }
     )
+
+    clearTimeout(timeout)
 
     const data =
       await res.json()
