@@ -24,13 +24,42 @@ origin: process.env.CLIENT_URLS?.split(",") || [],
     "POST",
     "PUT",
     "DELETE"
+  ],
 
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
   ],
 
   credentials: true
 }))
 
-app.use(express.json())
+app.use(express.json({ limit: "20mb" }))
+
+app.use((err, req, res, next) => {
+
+// فایل خیلی بزرگ
+if (err.type === "entity.too.large") {
+
+return res.status(413).json({
+  success: false,
+  message: "حجم فایل بکاپ بیش از حد مجاز است"
+})
+
+}
+
+// JSON خراب
+if (err instanceof SyntaxError) {
+
+return res.status(400).json({
+  success: false,
+  message: "فرمت فایل بکاپ معتبر نیست"
+})
+
+}
+
+next(err)
+})
 
 // ========================
 // RATE LIMIT
@@ -799,7 +828,7 @@ app.get("/api/backup", verifyToken, async (req, res) => {
 // ========================
 // RESTORE JSON
 // ========================
-app.use(express.json({ limit: "20mb" }))
+
 app.post(
 "/api/restore",
 verifyToken,
