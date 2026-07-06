@@ -93,7 +93,7 @@ const apiLimiter = rateLimit({
 
   message: {
     success: false,
-    message: "تعداد درخواست‌ها بیش از حد مجاز است"
+    message: "Too many requests"
   }
 })
 
@@ -132,7 +132,7 @@ function verifyToken(
 
     return res.status(401).json({
       success: false,
-      message: "توکن ارسال نشده است"
+      message: "No token"
     })
   }
 
@@ -152,7 +152,7 @@ function verifyToken(
 
     return res.status(401).json({
       success: false,
-      message: "توکن نامعتبر است"
+      message: "Invalid token"
     })
   }
 }
@@ -171,7 +171,7 @@ app.post("/api/login", async (req, res) => {
 
       return res.status(400).json({
         success: false,
-        message: "رمز عبور الزامی است"
+        message: "Password required"
     })
   }
 
@@ -185,7 +185,7 @@ app.post("/api/login", async (req, res) => {
 
     return res.status(401).json({
       success: false,
-      message: "رمز عبور اشتباه است"
+      message: "Wrong password"
     })
   }
 
@@ -614,19 +614,17 @@ app.get(
 
       return res.status(404).json({
         success: false,
-        message: "مهمان یافت نشد"
+        message:
+          "Guest not found"
       })
     }
 
     if (!data.active) {
 
       return res.status(403).json({
-        success: false,
-        blocked: true,
+        success: false, 
         message:
-          data.views >= data.max_views
-            ? "تعداد بازدید مجاز به پایان رسیده است"
-            : "لینک غیرفعال شده است"
+          "Link blocked"
       })
     }
 
@@ -645,7 +643,8 @@ app.get(
 
     return res.status(403).json({
       success: false,
-      message: "تعداد بازدید مجاز به پایان رسیده است"
+      message: 
+        "Limit reached"
     })
   }
 
@@ -681,7 +680,8 @@ app.post(
 
       return res.status(404).json({
         success: false,
-        message: "مهمان یافت نشد"
+        message: 
+          "Guest not found"
       })
     }
 
@@ -690,7 +690,8 @@ app.post(
 
       return res.status(403).json({
         success: false,
-        message: "لینک غیرفعال شده است"
+        message: 
+          "Link blocked"
       })
     }
 
@@ -709,7 +710,8 @@ app.post(
 
       return res.status(403).json({
         success: false,
-        message: "تعداد بازدید مجاز به پایان رسیده است"
+        message: 
+          "Limit reached"
       })
     }
 
@@ -862,7 +864,7 @@ if (!Array.isArray(guests)) {
 
   return res.status(400).json({
     success: false,
-    message: "فایل بکاپ معتبر نیست"
+    message: "Invalid backup file"
   })
 }
 
@@ -870,7 +872,7 @@ if (guests.length === 0) {
 
   return res.status(400).json({
     success: false,
-    message: "فایل بکاپ خالی است"
+    message: "Backup file is empty"
   })
 }
 
@@ -965,7 +967,7 @@ return res.status(500).json({
 
   return res.status(500).json({
     success: false,
-    message: "بازیابی بکاپ با خطا مواجه شد"
+    message: "Restore failed"
   })
 }
 
