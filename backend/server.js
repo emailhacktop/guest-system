@@ -185,7 +185,7 @@ app.post("/api/login", async (req, res) => {
 
     return res.status(401).json({
       success: false,
-      message: "رمز اشتباه است"
+      message: "رمز عبور اشتباه است"
     })
   }
 
@@ -619,6 +619,7 @@ app.get(
       })
     }
 
+    // اگر لینک غیرفعال بود
     if (!data.active) {
 
       return res.status(403).json({
