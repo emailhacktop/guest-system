@@ -582,9 +582,21 @@ async function restoreBackup(
     raw
     )
 
+    if (
+    raw.includes("PayloadTooLargeError")
+    ) {
+
     alert(
-    "پاسخ سرور:\n" + raw
+    "فایل انتخاب شده بکاپ معتبر نیست یا حجم آن بیش از حد مجاز است"
     )
+
+    } else {
+
+    alert(
+    "فایل بکاپ معتبر نیست"
+    )
+
+    }
 
     return
     }
