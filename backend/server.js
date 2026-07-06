@@ -601,8 +601,7 @@ app.get(
   "/api/guest/:token",
   async (req, res) => {
 
-    const { token } =
-      req.params
+    const { token } = req.params
 
     const {
       data,
@@ -611,17 +610,9 @@ app.get(
       .from("guests")
       .select("*")
       .eq("token", token)
-      .single()
+      .maybeSingle()
 
-    if (error) {
-
-      return handleSupabaseError(
-        res,
-        error
-      )
-
-    }
-
+    // فقط اگر رکورد پیدا نشد
     if (!data) {
 
       return res.status(404).json({
@@ -629,7 +620,8 @@ app.get(
         message: "مهمان یافت نشد"
       })
     }
-    
+
+    // اگر لینک غیرفعال بود
     if (!data.active) {
 
       return res.status(403).json({
@@ -638,24 +630,22 @@ app.get(
       })
     }
 
-// LIMIT REACHED تعداد بازدید منقض بشه
-//  لینک غیر غعال اتومات
- if (
-    data.views >= data.max_views
-  ) {
+    // اگر تعداد بازدید تمام شد
+    //  لینک غیر غعال اتومات
+    if (data.views >= data.max_views) {
 
-    await supabase
-      .from("guests")
-      .update({
-        active: false
+      await supabase
+        .from("guests")
+        .update({
+          active: false
+        })
+        .eq("id", data.id)
+
+      return res.status(403).json({
+        success: false,
+        message: "تعداد بازدید مجاز به پایان رسیده است"
       })
-      .eq("id", data.id)
-
-    return res.status(403).json({
-      success: false,
-      message: "تعداد بازدید مجاز به پایان رسیده است"
-    })
-  }
+    }
 
     res.json(data)
   }
