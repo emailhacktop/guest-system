@@ -507,8 +507,18 @@ async function restoreBackup(
     const text =
       await file.text()
 
-    const json =
-      JSON.parse(text)
+    let json
+
+    try {
+
+      json = JSON.parse(text)
+
+    } catch {
+
+      alert("فایل بکاپ معتبر نیست")
+
+      return
+    }
 
     console.log(
     "BACKUP JSON:",
