@@ -732,10 +732,16 @@ app.post(
         .select()
         .single()
 
-      if (
-        updateError ||
-        !updatedGuest
-      ) {
+      if (updateError) {
+
+        return handleSupabaseError(
+          res,
+          updateError
+        )
+
+      }
+
+      if (!updatedGuest) {
 
         return res.status(409).json({
           success: false,
@@ -743,6 +749,7 @@ app.post(
           message:
             "بازدید همزمان تشخیص داده شد، دوباره تلاش کنید"
         })
+
       }
 
       res.json({
@@ -891,10 +898,10 @@ try {
 
   if (deleteError) {
 
-    return res.status(500).json({
-      success: false,
-      error: deleteError
-    })
+    return handleSupabaseError(
+      res,
+      deleteError
+    )
   }
 
   // ========================
@@ -945,12 +952,13 @@ await supabase
 
 if (insertError) {
 
-return res.status(500).json({
-  success: false,
-  error: insertError
-})
+return handleSupabaseError(
+  res,
+  insertError
+)
 
 }
+
 }
 
   // ========================
