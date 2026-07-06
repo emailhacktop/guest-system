@@ -10,6 +10,16 @@ import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
 
 
+function handleSupabaseError(res, error) {
+
+console.error("SUPABASE ERROR:", error)
+
+return res.status(500).json({
+success: false,
+message: "ارتباط با سرور برقرار نشد، دوباره تلاش کنید"
+})
+
+}
 
 dotenv.config()
 
@@ -219,10 +229,11 @@ app.get(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json(data)
@@ -339,10 +350,11 @@ app.post(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json({
@@ -459,10 +471,11 @@ app.put(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json({
@@ -491,10 +504,11 @@ app.delete(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json({
@@ -527,10 +541,11 @@ app.post(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json({
@@ -565,10 +580,11 @@ app.post(
 
     if (error) {
 
-      return res.status(500).json({
-        success: false,
-        error
-      })
+    return handleSupabaseError(
+    res,
+    error
+    )
+
     }
 
     res.json({
@@ -815,10 +831,12 @@ app.get("/api/backup", verifyToken, async (req, res) => {
     .select("*")
 
   if (error) {
-    return res.status(500).json({
-      success: false,
-      error
-    })
+
+  return handleSupabaseError(
+  res,
+  error
+  )
+
   }
 
   res.setHeader("Content-Type", "application/json")
