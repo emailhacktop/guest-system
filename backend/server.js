@@ -100,7 +100,7 @@ const apiLimiter = rateLimit({
 app.use("/api", apiLimiter)
 
 // ========================
-// SUPABASE
+// SUPABASE اگر رکوردها زیاد شد و کند شد9خط { پاک شود}
 // ========================
 const supabase = createClient(
   process.env.SUPABASE_URL,
