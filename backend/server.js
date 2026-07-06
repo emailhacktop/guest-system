@@ -613,17 +613,23 @@ app.get(
       .eq("token", token)
       .single()
 
-    if (
-      error ||
-      !data
-    ) {
+    if (error) {
+
+      return handleSupabaseError(
+        res,
+        error
+      )
+
+    }
+
+    if (!data) {
 
       return res.status(404).json({
         success: false,
         message: "مهمان یافت نشد"
       })
     }
-
+    
     if (!data.active) {
 
       return res.status(403).json({
