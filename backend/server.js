@@ -8,7 +8,7 @@ import dotenv from "dotenv"
 import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
 
-global.fetch = fetch
+
 
 dotenv.config()
 
@@ -55,7 +55,15 @@ app.use("/api", apiLimiter)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY,
-  
+  {
+    global: {
+      fetch: (url, options = {}) =>
+        fetch(url, {
+          ...options,
+          compress: false
+        })
+    }
+  }
 )
 
 // ========================
@@ -823,19 +831,19 @@ try {
   // ========================
   // DELETE ALL OLD DATA
   // ========================
-  // const { error: deleteError } =
-  //  await supabase
-  //    .from("guests")
-  //    .delete()
-  //    .not("id", "is", null)
+  const { error: deleteError } =
+   await supabase
+     .from("guests")
+     .delete()
+     .not("id", "is", null)
 
-  // if (deleteError) {
+  if (deleteError) {
 
-  //   return res.status(500).json({
-  //     success: false,
-  //     error: deleteError
-  //   })
-  // }
+    return res.status(500).json({
+      success: false,
+      error: deleteError
+    })
+  }
 
   // ========================
   // CLEAN BACKUP DATA
@@ -851,7 +859,8 @@ try {
     g.title || "خانواده",
 
   token:
-    g.token,
+    g.token ||
+    crypto.randomBytes(16).toString("hex"),
 
   guests_count:
     Number(g.guests_count || 1),
@@ -872,18 +881,25 @@ try {
   // ========================
   // INSERT BACKUP
   // ========================
-  const { error: insertError } =
-    await supabase
-      .from("guests")
-      .insert(cleanedGuests)
+for (let i = 0; i < cleanedGuests.length; i += 20) {
 
-  if (insertError) {
+const chunk =
+cleanedGuests.slice(i, i + 20)
 
-    return res.status(500).json({
-      success: false,
-      error: insertError
-    })
-  }
+const { error: insertError } =
+await supabase
+.from("guests")
+.insert(chunk)
+
+if (insertError) {
+
+return res.status(500).json({
+  success: false,
+  error: insertError
+})
+
+}
+}
 
   // ========================
   // SUCCESS
