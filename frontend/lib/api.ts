@@ -43,15 +43,24 @@ async function handleResponse<T>(
     await res.json()
 
   // اگر خطا بود
-  if (!res.ok) {
+if (!res.ok) {
 
-    return {
-      success: false,
-      message:
-        data?.message ||
-        "API Error"
-    }
+  if (res.status >= 500) {
+
+    console.error(
+      "SERVER ERROR:",
+      data
+    )
   }
+
+  return {
+    success: false,
+    message:
+      data?.message ||
+      data?.error?.message ||
+      JSON.stringify(data)
+  }
+}
 
   return data
 }
@@ -122,7 +131,7 @@ return await handleResponse<any>(
   res
 )
 
-} catch (error) {
+} catch (error: any) {
 
 console.error(
   "createGuest error:",
@@ -130,10 +139,12 @@ console.error(
 )
 
 return {
-  success: false
+  success: false,
+  message: error?.message || "Unknown error"
 }
 
 }
+
 }
 
 // ========================
