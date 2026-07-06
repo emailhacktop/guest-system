@@ -185,7 +185,7 @@ app.post("/api/login", async (req, res) => {
 
     return res.status(401).json({
       success: false,
-      message: "Wrong password"
+      message: "رمز اشتباه است"
     })
   }
 
