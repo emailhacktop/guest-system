@@ -517,6 +517,7 @@ async function restoreBackup(
 
       alert("فایل بکاپ معتبر نیست")
 
+      setLoading(false)
       return
     }
 
