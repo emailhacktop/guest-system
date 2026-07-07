@@ -847,6 +847,169 @@ app.get("/api/backup", verifyToken, async (req, res) => {
   return res.status(200).send(JSON.stringify(data, null, 2))
 })
 
+//  Validator اطمینان برا ریستور بکاپ
+function validateBackup(guests) {
+
+  const errors = []
+
+  if (!Array.isArray(guests)) {
+
+    return {
+      valid: false,
+      errors: [
+        "Invalid backup file"
+      ]
+    }
+  }
+
+  if (guests.length === 0) {
+
+    return {
+      valid: false,
+      errors: [
+        "فایل فاقد رکورد است"
+      ]
+    }
+  }
+
+  const validTitles = [
+    "خانواده",
+    "آقای",
+    "خانم"
+  ]
+
+  guests.forEach((g, index) => {
+
+    const row = index + 1
+
+    if (
+      !g.name ||
+      g.name.trim() === ""
+    ) {
+
+      errors.push(
+        `رکورد ${row}: نام مهمان خالی است`
+      )
+    }
+
+    if (!("title" in g)) {
+
+      errors.push(
+        `رکورد ${row}: فیلد title وجود ندارد`
+      )
+
+    } else if (
+      !validTitles.includes(g.title)
+    ) {
+
+      errors.push(
+        `رکورد ${row}: عنوان معتبر نیست`
+      )
+
+    }
+
+    if (!("guests_count" in g)) {
+
+      errors.push(
+        `رکورد ${row}: فیلد guests_count وجود ندارد`
+      )
+
+    } else if (
+      typeof g.guests_count !== "number" ||
+      g.guests_count < 1 ||
+      g.guests_count > 99
+    ) {
+
+      errors.push(
+        `رکورد ${row}: تعداد نفرات معتبر نیست`
+      )
+
+    }
+
+    if (!("max_views" in g)) {
+
+      errors.push(
+        `رکورد ${row}: فیلد max_views وجود ندارد`
+      )
+
+    } else if (
+      typeof g.max_views !== "number" ||
+      g.max_views < 1 ||
+      g.max_views > 999
+    ) {
+
+      errors.push(
+        `رکورد ${row}: حداکثر بازدید معتبر نیست`
+      )
+
+    }
+
+    if (!("views" in g)) {
+
+      errors.push(
+        `رکورد ${row}: فیلد views وجود ندارد`
+      )
+
+    } else if (
+      typeof g.views !== "number" ||
+      g.views < 0
+    ) {
+
+      errors.push(
+        `رکورد ${row}: تعداد بازدید معتبر نیست`
+      )
+
+    }
+
+    if (
+      g.views > g.max_views
+    ) {
+
+      errors.push(
+        `رکورد ${row}: تعداد بازدید از حداکثر بیشتر است`
+      )
+    }
+
+    if (
+      !("active" in g) ||
+      typeof g.active !== "boolean"
+    ) {
+
+      errors.push(
+        `رکورد ${row}: وضعیت Active معتبر نیست`
+      )
+    }
+
+    if (!("token" in g)) {
+
+      errors.push(
+        `رکورد ${row}: فیلد token وجود ندارد`
+      )
+
+    } else if (
+      typeof g.token !== "string" ||
+      g.token.trim() === ""
+    ) {
+
+      errors.push(
+        `رکورد ${row}: توکن معتبر نیست`
+      )
+
+    }
+
+
+  })
+
+  return {
+
+    valid: errors.length === 0,
+
+    errors
+
+  }
+
+}
+
 // ========================
 // RESTORE JSON
 // ========================
@@ -859,7 +1022,7 @@ async (req, res) => {
 const guests = req.body
 
 // ========================
-// VALIDATION
+// VALIDATION ریستور
 // ========================
 if (!Array.isArray(guests)) {
 
@@ -874,6 +1037,16 @@ if (guests.length === 0) {
   return res.status(400).json({
     success: false,
     message: "Backup file is empty"
+  })
+}
+
+const validation = validateBackup(guests)
+
+if (!validation.valid) {
+
+  return res.status(400).json({
+    success: false,
+    message: validation.errors.join("\n")
   })
 }
 
@@ -895,39 +1068,17 @@ try {
       error: deleteError
     })
   }
-
-  // ========================
-  // CLEAN BACKUP DATA
-  // ========================
-  // پاکسازی داده‌ها قبل از restore
-  const cleanedGuests =
-  guests.map((g) => ({
-
-  name:
-    g.name || "",
-
-  title:
-    g.title || "خانواده",
-
-  token:
-    g.token ||
-    crypto.randomBytes(24).toString("base64url"),
-
-  guests_count:
-    Number(g.guests_count || 1),
-
-  max_views:
-    Number(g.max_views || 1),
-
-  views:
-    Number(g.views || 0),
-
-  active:
-    g.active ?? true
-
-  // عمداً id و created_at ریستور نمی‌شوند
-
-  }))
+//  فقط ستون‌های مجاز ریستور میشود
+// ========================
+const cleanedGuests = guests.map(g => ({
+  name: g.name.trim(),
+  title: g.title,
+  guests_count: g.guests_count,
+  token: g.token,
+  views: g.views,
+  max_views: g.max_views,
+  active: g.active
+}))
 
   // ========================
   // INSERT BACKUP
