@@ -116,34 +116,39 @@ body {
    MOVING GOLD LIGHT
 ========================= */
 
-.invite-card::after {
+.header-shine{
+position:relative;
+overflow:hidden;
+}
 
-  content: "";
+.header-shine::after{
 
-  position: absolute;
+content:"";
 
-  top: -50%;
+position:absolute;
 
-  left: -60%;
+top:-60%;
 
-  width: 70%;
+left:-70%;
 
-  height: 200%;
+width:90%;
 
-  background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(255,215,0,0.18),
-      transparent
-    );
+height:220%;
 
-  transform: rotate(15deg);
+background:
+linear-gradient(
+120deg,
+transparent,
+rgba(255,255,255,.12),
+transparent
+);
 
-  animation:
-    shineMove 7s linear infinite;
+transform:rotate(15deg);
 
-  pointer-events: none;
+animation:shineMove 8s linear infinite;
+
+pointer-events:none;
+
 }
 
 @keyframes shineMove {

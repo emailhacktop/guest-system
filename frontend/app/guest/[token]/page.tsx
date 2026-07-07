@@ -233,16 +233,14 @@ export default function GuestPage({
 
           >
 
+            <div className="absolute inset-0 flex items-center justify-center"></div>
+            
             <video
 
               autoPlay
-
               muted
-
               playsInline
-
-              className="absolute inset-0 w-full h-full object-cover"
-
+              className="w-[420px] md:w-[520px] lg:w-[620px] object-contain"
             >
 
               <source
@@ -383,7 +381,7 @@ export default function GuestPage({
 
       {/* HEADER */}
 
-      <div className="px-6 pt-8">
+      <div className="px-6 pt-8 header-shine">
 
       <div className="text-center text-yellow-200/80 text-sm tracking-[4px]">
 
@@ -395,9 +393,7 @@ export default function GuestPage({
         className="gold-text nastaliq text-center mt-8 leading-[90px] text-[58px]"
       >
 
-      <div className="flex justify-center my-6">
-        <div className="w-44 h-[2px] rounded-full bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
-      </div>
+
 
       {typingStart && (
 
@@ -418,6 +414,10 @@ export default function GuestPage({
 
       </div>
 
+      <div className="flex justify-center my-6">
+      <div className="w-44 h-[2px] rounded-full bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
+      </div>
+
       <div
       className="text-center text-white/80 text-xl leading-[48px] mt-10 whitespace-pre-line"
       >
@@ -429,7 +429,7 @@ export default function GuestPage({
       sequence={[
       "",
       1500,
-      "با نهایت احترام\nحضور گرم شما را\nدر این مراسم ارج می‌نهیم"
+      "با نهایت احترام\nحضور گرم شما را در این مراسم ارج می‌نهیم"
       ]}
 
       speed={55}
