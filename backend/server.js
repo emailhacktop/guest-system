@@ -228,11 +228,7 @@ app.get(
         )
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json(data)
@@ -320,7 +316,7 @@ app.post(
         .randomBytes(24)
         .toString("base64url")
 
-    // insert
+    // CREATE GUEST (insert)
     const {
       data,
       error
@@ -348,11 +344,7 @@ app.post(
       .select()
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json({
@@ -446,7 +438,7 @@ app.put(
     }
 
 // ========================
-// UPDATE
+// EDIT GUEST\UPDATE
 // ========================
     const {
       data,
@@ -468,11 +460,7 @@ app.put(
       .select()
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json({
@@ -500,11 +488,7 @@ app.delete(
         .eq("id", id)
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json({
@@ -536,11 +520,7 @@ app.post(
       .select()
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json({
@@ -574,11 +554,7 @@ app.post(
       .select()
 
     if (error) {
-
-      return res.status(500).json({
-        success: false,
-        error
-      })
+      return handleSupabaseError(res, error)
     }
 
     res.json({
@@ -832,10 +808,7 @@ app.get("/api/backup", verifyToken, async (req, res) => {
     .select("*")
 
   if (error) {
-    return res.status(500).json({
-      success: false,
-      error
-    })
+    return handleSupabaseError(res, error)
   }
 
   res.setHeader("Content-Type", "application/json")
@@ -1053,7 +1026,7 @@ if (!validation.valid) {
 try {
 
   // ========================
-  // DELETE ALL OLD DATA
+  // DELETE ALL OLD DATA قبل ریستور
   // ========================
   const { error: deleteError } =
    await supabase
@@ -1062,11 +1035,7 @@ try {
      .not("id", "is", null)
 
   if (deleteError) {
-
-    return res.status(500).json({
-      success: false,
-      error: deleteError
-    })
+    return handleSupabaseError(res, deleteError)
   }
 //  فقط ستون‌های مجاز ریستور میشود
 // ========================
@@ -1081,7 +1050,7 @@ const cleanedGuests = guests.map(g => ({
 }))
 
   // ========================
-  // INSERT BACKUP
+  // INSERT BACKUP ریستور
   // ========================
 for (let i = 0; i < cleanedGuests.length; i += 20) {
 
@@ -1094,12 +1063,7 @@ await supabase
 .insert(chunk)
 
 if (insertError) {
-
-return res.status(500).json({
-  success: false,
-  error: insertError
-})
-
+  return handleSupabaseError(res, insertError)
 }
 }
 
