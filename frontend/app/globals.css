@@ -279,94 +279,7 @@ select {
   color: #111 !important;
 }
 
-/* =========================
-   GOLD PARTICLES
-========================= */
-.gold-particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
-}
 
-.gold-particles span {
-  position: absolute;
-
-  width: 6px;
-  height: 6px;
-
-  background: #d4af37;
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 10px #d4af37,
-    0 0 20px #d4af37;
-
-  animation: snowfall linear infinite;
-}
-
-.gold-particles span:nth-child(1) {
-  left: 10%;
-  animation-duration: 8s;
-}
-
-.gold-particles span:nth-child(2) {
-  left: 20%;
-  animation-duration: 12s;
-}
-
-.gold-particles span:nth-child(3) {
-  left: 30%;
-  animation-duration: 10s;
-}
-
-.gold-particles span:nth-child(4) {
-  left: 40%;
-  animation-duration: 14s;
-}
-
-.gold-particles span:nth-child(5) {
-  left: 50%;
-  animation-duration: 9s;
-}
-
-.gold-particles span:nth-child(6) {
-  left: 60%;
-  animation-duration: 13s;
-}
-
-.gold-particles span:nth-child(7) {
-  left: 70%;
-  animation-duration: 11s;
-}
-
-.gold-particles span:nth-child(8) {
-  left: 80%;
-  animation-duration: 15s;
-}
-
-.gold-particles span:nth-child(9) {
-  left: 90%;
-  animation-duration: 10s;
-}
-
-@keyframes snowfall {
-  0% {
-    transform: translateY(-10vh);
-    opacity: 0;
-  }
-
-  20% {
-    opacity: 1;
-  }
-
-  100% {
-    transform: translateY(110vh);
-    opacity: 0;
-  }
-}
 
 /* =========================
 GOLD SNOW
@@ -472,4 +385,583 @@ transform:
   translateY(0);
 
 }
+}
+
+/* ==========================
+INTRO
+==========================*/
+
+.intro-video{
+
+position:absolute;
+
+inset:0;
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+}
+
+.intro-overlay{
+
+position:absolute;
+
+inset:0;
+
+background:rgba(0,0,0,.55);
+
+backdrop-filter:blur(2px);
+
+}
+
+.intro-title{
+
+font-size:clamp(42px,7vw,90px);
+
+font-weight:bold;
+
+letter-spacing:2px;
+
+}
+
+.intro-sub{
+
+font-size:clamp(18px,2vw,28px);
+
+letter-spacing:8px;
+
+color:white;
+
+margin-top:30px;
+
+}
+
+/* ==========================
+MAIN CARD
+==========================*/
+
+.invite-card{
+
+max-width:470px;
+
+width:100%;
+
+}
+
+/* ==========================
+VIDEO
+==========================*/
+
+.invite-video{
+
+width:100%;
+
+aspect-ratio:9/16;
+
+object-fit:cover;
+
+}
+
+/* ==========================
+RESPONSIVE
+==========================*/
+
+@media(max-width:768px){
+
+.invitation-page{
+
+padding:20px 14px;
+
+}
+
+.invite-card{
+
+padding:18px;
+
+border-radius:25px;
+
+}
+
+.gold-text{
+
+font-size:38px;
+
+line-height:65px;
+
+}
+
+.invite-video{
+
+border-radius:18px;
+
+}
+
+}
+
+@media(max-width:480px){
+
+.gold-text{
+
+font-size:34px;
+
+line-height:58px;
+
+}
+
+.invite-card{
+
+padding:14px;
+
+}
+
+}
+
+@keyframes goldFlow {
+
+  0% {
+    background-position: 0% center;
+  }
+
+  100% {
+    background-position: 250% center;
+  }
+
+}
+
+.loading-screen{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:#000;
+color:white;
+font-size:24px;
+}
+
+.invitation-page{
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.invite-card{
+animation:cardEnter 1.2s ease;
+}
+
+.invite-card:hover{
+transform:translateY(-3px);
+transition:.4s;
+box-shadow:
+0 0 40px rgba(255,215,0,.35),
+0 0 120px rgba(255,215,0,.18);
+}
+
+.invite-video{
+background:#000;
+}
+
+.invite-video video{
+display:block;
+width:100%;
+height:100%;
+}
+
+@media(max-width:768px){
+
+.invite-card{
+
+max-width:100%;
+
+}
+
+.gold-text{
+
+font-size:42px!important;
+
+line-height:70px!important;
+
+}
+
+}
+
+/* ====================================
+   LUXURY INVITATION 2026
+==================================== */
+
+.loading-screen{
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+height:100vh;
+
+background:#000;
+
+color:#fff;
+
+font-size:28px;
+
+letter-spacing:2px;
+
+}
+
+/* ========================= */
+
+.invitation-page{
+
+position:relative;
+
+display:flex;
+
+justify-content:center;
+
+align-items:flex-start;
+
+min-height:100vh;
+
+padding:50px 20px;
+
+background:
+radial-gradient(circle at top,#2b1b00,#000 60%);
+
+overflow:hidden;
+
+}
+
+/* ========================= */
+
+.invitation-page::before{
+
+content:"";
+
+position:absolute;
+
+inset:0;
+
+background:
+
+radial-gradient(circle,#d4af37 1px,transparent 1px);
+
+background-size:45px 45px;
+
+opacity:.08;
+
+animation:snowMove 45s linear infinite;
+
+pointer-events:none;
+
+}
+
+/* ========================= */
+
+.invitation-page::after{
+
+content:"";
+
+position:absolute;
+
+inset:0;
+
+background:
+
+linear-gradient(
+
+180deg,
+
+transparent,
+
+rgba(255,215,0,.04),
+
+transparent
+
+);
+
+animation:goldFlow 15s linear infinite;
+
+pointer-events:none;
+
+}
+
+/* ========================= */
+
+.invite-card{
+
+position:relative;
+
+overflow:hidden;
+
+max-width:470px;
+
+width:100%;
+
+padding:26px;
+
+border-radius:38px;
+
+background:
+
+linear-gradient(
+
+180deg,
+
+rgba(32,22,0,.95),
+
+rgba(8,8,8,.96)
+
+);
+
+border:1px solid rgba(255,215,0,.45);
+
+box-shadow:
+
+0 0 30px rgba(255,215,0,.15),
+
+0 0 90px rgba(255,215,0,.08),
+
+inset 0 0 25px rgba(255,215,0,.08);
+
+backdrop-filter:blur(12px);
+
+animation:cardEnter 1.3s ease;
+
+}
+
+/* ========================= */
+
+.invite-card::before{
+
+content:"";
+
+position:absolute;
+
+top:-60%;
+
+left:-50%;
+
+width:90%;
+
+height:220%;
+
+background:
+
+linear-gradient(
+
+120deg,
+
+transparent,
+
+rgba(255,255,255,.10),
+
+transparent
+
+);
+
+transform:rotate(15deg);
+
+animation:shineMove 9s linear infinite;
+
+pointer-events:none;
+
+}
+
+/* ========================= */
+
+.invite-card:hover{
+
+transform:translateY(-4px);
+
+transition:.4s;
+
+box-shadow:
+
+0 0 40px rgba(255,215,0,.25),
+
+0 0 130px rgba(255,215,0,.12);
+
+}
+
+/* ========================= */
+
+.gold-text{
+
+background:
+
+linear-gradient(
+
+90deg,
+
+#f6d365,
+
+#fff8d2,
+
+#ffd86f,
+
+#f6d365
+
+);
+
+background-size:300% auto;
+
+color:transparent;
+
+-webkit-background-clip:text;
+
+background-clip:text;
+
+animation:goldFlow 6s linear infinite;
+
+text-shadow:
+
+0 0 10px rgba(255,215,0,.35),
+
+0 0 25px rgba(255,215,0,.25);
+
+}
+
+/* ========================= */
+
+.invite-video{
+
+width:100%;
+
+aspect-ratio:9/16;
+
+object-fit:cover;
+
+border-radius:25px;
+
+border:2px solid rgba(255,215,0,.55);
+
+box-shadow:
+
+0 0 20px rgba(255,215,0,.30),
+
+0 0 60px rgba(255,215,0,.12);
+
+background:#000;
+
+}
+
+/* ========================= */
+
+.invite-video video{
+
+width:100%;
+
+height:100%;
+
+display:block;
+
+object-fit:cover;
+
+}
+
+/* ========================= */
+
+.intro-video{
+
+position:absolute;
+
+inset:0;
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+}
+
+/* ========================= */
+
+.intro-overlay{
+
+position:absolute;
+
+inset:0;
+
+background:rgba(0,0,0,.60);
+
+backdrop-filter:blur(2px);
+
+}
+
+/* ========================= */
+
+.intro-title{
+
+font-size:clamp(44px,7vw,92px);
+
+font-weight:bold;
+
+letter-spacing:2px;
+
+}
+
+.intro-sub{
+
+font-size:clamp(18px,2vw,30px);
+
+letter-spacing:8px;
+
+color:white;
+
+margin-top:35px;
+
+}
+
+/* ========================= */
+
+@media(max-width:768px){
+
+.invitation-page{
+
+padding:20px 10px;
+
+}
+
+.invite-card{
+
+padding:16px;
+
+border-radius:28px;
+
+}
+
+.gold-text{
+
+font-size:40px !important;
+
+line-height:70px !important;
+
+}
+
+.invite-video{
+
+border-radius:18px;
+
+}
+
+}
+
+@media(max-width:480px){
+
+.gold-text{
+
+font-size:34px !important;
+
+line-height:58px !important;
+
+}
+
+.invite-card{
+
+padding:14px;
+
+}
+
 }
