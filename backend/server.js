@@ -1035,7 +1035,12 @@ try {
      .not("id", "is", null)
 
   if (deleteError) {
-    return handleSupabaseError(res, deleteError)
+
+    return res.status(500).json({
+      success: false,
+      error: deleteError
+    })
+
   }
 //  فقط ستون‌های مجاز ریستور میشود
 // ========================
@@ -1063,7 +1068,12 @@ await supabase
 .insert(chunk)
 
 if (insertError) {
-  return handleSupabaseError(res, insertError)
+
+  return res.status(500).json({
+    success: false,
+    error: insertError
+  })
+
 }
 }
 
