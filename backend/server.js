@@ -1028,7 +1028,7 @@ if (!Array.isArray(guests)) {
 
   return res.status(400).json({
     success: false,
-    message: "Invalid backup file"
+    message: "فایل بکاپ معتبر نیست"
   })
 }
 
@@ -1036,7 +1036,7 @@ if (guests.length === 0) {
 
   return res.status(400).json({
     success: false,
-    message: "Backup file is empty"
+    message: "فایل بکاپ خالی است"
   })
 }
 
