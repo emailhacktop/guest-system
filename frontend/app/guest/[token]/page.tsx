@@ -394,18 +394,7 @@ export default function GuestPage({
 
       rounded-[35px]
 
-      overflow-hidden
-
-      backdrop-blur-xl
-
-      bg-white/5
-
-      border
-
-      border-yellow-400/20
-
-      shadow-[0_0_60px_rgba(255,215,0,.18)]
-
+      
       "
 
       >

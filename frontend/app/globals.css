@@ -49,32 +49,7 @@ body {
 
 
 
-/* =========================
-   INVITE CARD
-========================= */
-.invite-card {
-  background: linear-gradient(
-    180deg,
-    rgba(30, 20, 0, 0.92),
-    rgba(0, 0, 0, 0.96)
-  );
 
-  border: 2px solid #d4af37;
-
-  border-radius: 30px;
-
-  box-shadow:
-    0 0 30px rgba(212, 175, 55, 0.15),
-    inset 0 0 20px rgba(212, 175, 55, 0.08);
-
-  backdrop-filter: blur(6px);
-
-  position: relative;
-
-  z-index: 2;
-
-  overflow: hidden;
-}
 
 /* =========================
    GOLD BORDER
@@ -85,7 +60,7 @@ body {
 
 .gold-border::before {
   content: "";
-
+  z-index:5;
   position: absolute;
 
   inset: 0;
@@ -94,11 +69,13 @@ body {
 
   padding: 2px;
 
-  background: linear-gradient(
-    45deg,
-    #d4af37,
-    #f6e27a,
-    #d4af37
+  background:
+  linear-gradient(
+  135deg,
+  #f4d46a,
+  #fff5bf,
+  #c99617,
+  #f4d46a
   );
 
   -webkit-mask:
@@ -452,17 +429,7 @@ margin-top:30px;
 
 }
 
-/* ==========================
-MAIN CARD عرض
-==========================*/
 
-.invite-card{
-
-max-width:500px;
-
-width:100%;
-
-}
 
 /* ==========================
 VIDEO ابعاد ویدئو و نور کادر آن
@@ -478,13 +445,12 @@ aspect-ratio:9/16;
 
 display:block;
 
-border-radius:26px;
+border:2px solid #e3c35b;
 
 border:2px solid rgba(255,215,0,.55);
 
 box-shadow:
-0 0 30px rgba(255,215,0,.30),
-0 0 90px rgba(255,215,0,.12);
+0 0 12px rgba(255,215,0,.20);
 
 background:#000;
 
@@ -502,13 +468,6 @@ padding:20px 14px;
 
 }
 
-.invite-card{
-
-padding:18px;
-
-border-radius:25px;
-
-}
 
 .gold-text{
 
@@ -536,11 +495,6 @@ line-height:58px;
 
 }
 
-.invite-card{
-
-padding:14px;
-
-}
 
 }
 
@@ -572,35 +526,11 @@ justify-content:center;
 align-items:center;
 }
 
-.invite-card{
-animation:cardEnter 1.2s ease;
-}
 
-.invite-card:hover{
-transform:translateY(-3px);
-transition:.4s;
-box-shadow:
-0 0 40px rgba(255,215,0,.35),
-0 0 120px rgba(255,215,0,.18);
-}
-
-.invite-video{
-background:#000;
-}
-
-.invite-video video{
-display:block;
-width:100%;
-height:100%;
-}
 
 @media(max-width:768px){
 
-.invite-card{
 
-max-width:100%;
-
-}
 
 .gold-text{
 
@@ -711,89 +641,71 @@ pointer-events:none;
 
 }
 
-/* ========= 470 عرض ویدئو ========= */
+/* ======= invite-card رنگ کارت ======= */
 
 .invite-card{
-
+  
 position:relative;
 
 overflow:hidden;
-
-max-width:520px;
-
-width:100%;
-
-padding:26px;
-
-border-radius:38px;
+isolation:isolate;
 
 background:
 
 linear-gradient(
 
 180deg,
-
-rgba(32,22,0,.95),
-
-rgba(8,8,8,.96)
-
+rgba(52,38,0,.96) 0%,
+rgba(30,20,0,.97) 35%,
+rgba(10,10,10,.98) 100%
 );
 
-border:1px solid rgba(255,215,0,.45);
+border-radius:35px;
 
 box-shadow:
+0 0 12px rgba(255,215,0,.20),
+0 0 45px rgba(255,215,0,.15),
+0 0 80px rgba(255,215,0,.08);
 
-0 0 30px rgba(255,215,0,.15),
-
-0 0 90px rgba(255,215,0,.08),
-
-inset 0 0 25px rgba(255,215,0,.08);
-
-backdrop-filter:blur(12px);
-
-animation:cardEnter 1.3s ease;
-
+backdrop-filter:blur(18px);
 }
 
 /* ======= افکت مورب لوکس ======== */
 
-.invite-card::before{
+.invite-card::after{
 
 content:"";
 
 position:absolute;
 
-top:-50%;
-
-left:-60%;
+top:-20%;
+left:-45%;
 
 width:180px;
 
-height:260%;
+height:160%;
 
 background:
 
 linear-gradient(
 90deg,
 transparent,
-rgba(255,255,255,.08),
-rgba(255,248,180,.95),
-rgba(255,255,255,.08),
+rgba(255,220,90,.08),
+rgba(255,220,90,.18),
+rgba(255,220,90,.08),
 transparent
 
 );
 
-transform:rotate(22deg);
+transform:rotate(14deg);
 
-filter:blur(10px);
+filter:blur(3px);
 
 pointer-events:none;
 
-z-index:999;
+z-index:1;
 
-opacity:.95;
-
-animation:cardLightMove 5.5s linear infinite;
+animation:cardLightMove 7s linear infinite;
 
 }
 
@@ -851,29 +763,7 @@ text-shadow:
 
 }
 
-/* ========================= */
 
-.invite-video{
-
-width:100%;
-
-aspect-ratio:9/16;
-
-object-fit:cover;
-
-border-radius:25px;
-
-border:2px solid rgba(255,215,0,.55);
-
-box-shadow:
-
-0 0 20px rgba(255,215,0,.30),
-
-0 0 60px rgba(255,215,0,.12);
-
-background:#000;
-
-}
 
 /* ========================= */
 
@@ -953,13 +843,6 @@ padding:20px 10px;
 
 }
 
-.invite-card{
-
-padding:16px;
-
-border-radius:28px;
-
-}
 
 .gold-text{
 
@@ -1001,53 +884,30 @@ padding:14px;
 position:relative;
 overflow:hidden;
 
+margin:22px;
+
+border-radius:28px;
+
+z-index:20;
 }
 
 .video-frame video{
-    position:relative;
-    z-index:100;
-    display:block;
+display:block;
+width:100%;
+height:100%;
+position:relative;
+z-index:10;
 }
 
-/* ==== همان افکت مورب لوکسی است===== */
+/* ==== همان انیمیشن افکت مورب لوکسی است===== */
 @keyframes cardLightMove{
 
 0%{
-
-transform:
-translateX(-160%)
-rotate(22deg);
-
-opacity:0;
-
-}
-
-12%{
-
-opacity:1;
-
-}
-
-50%{
-
-opacity:1;
-
-}
-
-88%{
-
-opacity:1;
-
+left:-55%;
 }
 
 100%{
-
-transform:
-translateX(260%)
-rotate(22deg);
-
-opacity:0;
-
+left:115%;
 }
 
 }
