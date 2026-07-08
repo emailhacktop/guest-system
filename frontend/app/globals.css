@@ -91,65 +91,7 @@ body {
   z-index:5;
 }
 
-/* =========================
-   MOVING GOLD LIGHT خط افقی نورانی زیر مهمان
-========================= */
 
-.header-shine{
-    position:relative;
-    display:inline-block;
-    width:100%;
-}
-
-.header-shine::after{
-
-content:"";
-
-position:absolute;
-
-left:-30%;
-bottom:8px;
-
-width:40%;
-height:4px;
-
-border-radius:999px;
-
-background:linear-gradient(
-90deg,
-transparent,
-#fff4b0,
-#ffd54d,
-#fff4b0,
-transparent
-);
-
-filter:blur(3px);
-
-animation:lightMove 4s linear infinite;
-
-pointer-events:none;
-
-}
-
-@keyframes lightMove{
-
-0%{
-left:-40%;
-opacity:.15;
-}
-
-50%{
-left:35%;
-opacity:1;
-}
-
-100%{
-left:110%;
-opacity:.15;
-}
-
-}
 
 /* =========================
    FADE IN

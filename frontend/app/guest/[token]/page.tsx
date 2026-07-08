@@ -433,7 +433,7 @@ export default function GuestPage({
         {/* نام مهمان */}
         <div className="flex justify-center mt-3">
 
-          <div className="header-shine">
+
 
             <div
               className="gold-text nastaliq text-center leading-[90px] text-[58px]"
@@ -456,7 +456,7 @@ export default function GuestPage({
 
             </div>
 
-          </div>
+
 
         </div>
 
