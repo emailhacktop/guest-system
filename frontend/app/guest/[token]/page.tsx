@@ -1,6 +1,5 @@
 'use client'
 
-import { AnimatePresence, motion } from "framer-motion"
 import { use } from "react"
 import { useEffect, useState } from "react"
 
@@ -19,7 +18,6 @@ type Guest = {
   name: string
   title: string
   token: string
-  guests_count: number
   max_views: number
   views: number
   active?: boolean
@@ -44,15 +42,9 @@ export default function GuestPage({
   const [error, setError] =
     useState<string | null>(null)
 
-  const [showIntro, setShowIntro] =
-    useState(true)
-
-  const [showMain, setShowMain] =
-    useState(false)
-
-  const [typingStart, setTypingStart] =
-    useState(false)  
-
+  // ========================
+  // LOAD GUEST
+  // ========================
   async function loadGuest() {
 
     const data =
@@ -63,456 +55,290 @@ export default function GuestPage({
       data.success === false
     ) {
 
-      if (
-        data?.message === "Link blocked"
-      ) {
+    if (
+      data?.message === "Link blocked"
+    ) {
 
-        setError("این لینک مسدود شده است")
+      setError(
+        "این لینک مسدود شده است"
+      )
 
-      } else if (
-        data?.message === "Limit reached"
-      ) {
+    } else if (
+      data?.message === "Limit reached"
+    ) {
 
-        setError("تعداد بازدید این لینک به پایان رسیده است")
+      setError(
+        "تعداد بازدید این لینک به پایان رسیده است"
+      )
 
-      } else {
+    } else {
 
-        setError("لینک معتبر نیست")
-
-      }
+      setError(
+        "لینک معتبر نیست"
+      )
+    }
 
       return null
     }
-
+    
     if (
       data.views >= data.max_views
     ) {
 
-      setError("تعداد بازدید این لینک به پایان رسیده است")
+      setError(
+        "تعداد بازدید این لینک به پایان رسیده است"
+      )
 
       return null
-
     }
 
+    
     return data as Guest
   }
+      
+  // ========================
+  // INIT
+  // ========================
+// ========================
+// INIT
+// ========================
+useEffect(() => {
 
-  useEffect(() => {
+const run = async () => {
 
-    const run = async () => {
+try {
 
-      try {
+  const data =
+    await loadGuest()
 
-        const data =
+  if (data) {
+
+    try {
+
+      const result: any =
+        await increaseView(token)
+
+      if (result?.success) {
+
+        setGuest({
+          ...data,
+          views: result.views
+        })
+
+      } else if (result?.retry) {
+
+        const refreshed =
           await loadGuest()
 
-        if (data) {
+        if (refreshed) {
 
-          try {
-
-            const result: any =
-              await increaseView(token)
-
-            if (result?.success) {
-
-              setGuest({
-
-                ...data,
-
-                views: result.views
-
-              })
-
-            } else {
-
-              setGuest(data)
-
-            }
-
-          } catch {
-
-            setGuest(data)
-
-          }
-
+          setGuest(refreshed)
         }
-
-      } finally {
-
-        setLoading(false)
-
       }
 
+    } catch (err) {
+
+      console.error(
+        "Increase view error:",
+        err
+      )
     }
+  }
 
-    run()
+} finally {
 
-  }, [token])
+  setLoading(false)
+}
 
-  useEffect(() => {
+}
 
-    if (!loading) {
+run()
 
-      const timer = setTimeout(() => {
+}, [token])
 
-        setShowIntro(false)
-
-        setTimeout(() => {
-
-        setShowMain(true)
-
-        setTimeout(() => {
-
-        setTypingStart(true)
-
-        },900)
-
-        },800)
-
-      },7000)
-
-      return ()=>clearTimeout(timer)
-
-    }
-
-  },[loading])
-
+  // ========================
+  // LOADING
+  // ========================
   if (loading) {
 
     return (
 
-      <div className="loading-screen">
+      <div className="min-h-screen bg-black flex items-center justify-center text-white text-2xl">
 
-        درحال بارگذاری...
-
-      </div>
-
-    )
-
-  }
-
-  if(error || !guest){
-
-    return(
-
-      <div className="loading-screen">
-
-        {error}
+        در حال بارگذاری...
 
       </div>
-
     )
-
   }
+
+  // ========================
+  // ERROR
+  // ========================
+  if (error || !guest) {
 
     return (
 
-    <div className="relative min-h-screen overflow-hidden bg-black">
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
 
-      {/* GOLD PARTICLES */}
+        <div className="invite-card p-10 text-center max-w-xl w-full">
 
+          <div className="text-2xl text-red-400 font-bold">
+
+            {error}
+
+          </div>
+
+        </div>
+
+      </div>
+    )
+  }
+
+  // ========================
+  // UI
+  // ========================
+  return (
+
+  <div className="invitation-page relative min-h-screen overflow-hidden flex flex-col items-center justify-start py-10 px-4 bg-black">
+
+      {/* GOLD SNOW */}
       <div className="gold-snow"></div>
 
       {/* INTRO */}
+      <div className="relative z-10 text-center mb-10">
 
-      <AnimatePresence>
+        <div className="gold-text text-3xl md:text-5xl font-bold leading-[70px]">
 
-        {showIntro && (
+          <TypeAnimation
+            sequence={[
+              'به نام ایزد مهرآفرین'
+            ]}
+            speed={40}
+            cursor={false}
+          />
 
-          <motion.div
+        </div>
 
-            initial={{ opacity:0 }}
+        <div className="text-white text-2xl mt-4">
 
-            animate={{ opacity:1 }}
+          <TypeAnimation
+            sequence={[
+              '',
+              2500,
+              'دعوتنامه اختصاصی'
+            ]}
+            speed={50}
+            cursor={false}
+          />
 
-            exit={{ opacity:0 }}
+        </div>
 
-            transition={{ duration:1 }}
+      </div>
 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+      {/* MAIN CARD */}
+      <div
+        className="
+          invite-card
+          card-enter
+          gold-border
+          relative
+          z-10
+          w-full
+          max-w-lg
+          p-6
+          text-center
+          backdrop-blur-xl
+          bg-white/5
+          border
+          border-yellow-500/30
+          shadow-[0_0_40px_rgba(255,215,0,0.25)]
+          rounded-[35px]
+        "
+      >
 
+        {/* WELCOME */}
+        <div className="mb-8">
+
+          <div className="text-gray-200 text-xl mb-6 min-h-[40px]">
+
+            <TypeAnimation
+              sequence={[
+                '',
+                4000,
+                'به مراسم ویژه ما خوش آمدید'
+              ]}
+              speed={50}
+              cursor={false}
+            />
+
+          </div>
+
+          {/* NAME */}
+          <div
+            className="gold-text text-4xl md:text-6xl leading-[80px] md:leading-[110px]"
+            style={{
+              fontFamily: "IranNastaliq"
+            }}
           >
 
-            <div className="absolute inset-0 flex items-center justify-center"></div>
-            
-            <video
-
-              autoPlay
-              muted
-              playsInline
-              className="w-[420px] md:w-[520px] lg:w-[620px] object-contain"
-            >
-
-              <source
-
-                src="/videos/opening.mp4"
-
-                type="video/mp4"
-
-              />
-
-            </video>
-
-            <div className="absolute inset-0 bg-black/55"/>
-
-            <motion.div
-
-              initial={{
-
-                opacity:0,
-
-                scale:.85,
-
-                y:40
-
-              }}
-
-              animate={{
-
-                opacity:1,
-
-                scale:1,
-
-                y:0
-
-              }}
-
-              transition={{
-
-                delay:.8,
-
-                duration:1.5
-
-              }}
-
-              className="relative text-center"
-
-            >
-
-              <h1 className="gold-text text-5xl md:text-7xl font-bold">
-
-                به نام ایزد مهرآفرین
-
-              </h1>
-
-              <p className="mt-8 text-white text-2xl tracking-[6px]">
-
-                دعوتنامه اختصاصی
-
-              </p>
-
-            </motion.div>
-
-          </motion.div>
-
-        )}
-
-      </AnimatePresence>
-
-      {/* MAIN */}
-
-      <AnimatePresence>
-
-      {showMain && (
-
-      <motion.div
-
-      initial={{
-
-      opacity:0,
-
-      scale:.9,
-
-      y:40
-
-      }}
-
-      animate={{
-
-      opacity:1,
-
-      scale:1,
-
-      y:0
-
-      }}
-
-      transition={{
-
-      duration:1.3
-
-      }}
-
-      className="relative z-20 flex flex-col items-center py-8 px-4"
-
-      >
-
-      {/* CARD */}
-
-      <div
-
-      className="
-
-      invite-card
-
-      gold-border
-
-      max-w-[460px]
-
-      w-full
-
-      rounded-[35px]
-
-      overflow-hidden
-
-      backdrop-blur-xl
-
-      bg-white/5
-
-      border
-
-      border-yellow-400/20
-
-      shadow-[0_0_60px_rgba(255,215,0,.18)]
-
-      "
-
-      >
-
-      {/* HEADER */}
-
-      <div className="px-6 pt-8 header-shine">
-
-      <div className="text-center text-yellow-200/80 text-sm tracking-[4px]">
-
-      به مراسم ویژه ما خوش آمدید
+            <TypeAnimation
+              sequence={[
+                '',
+                6000,
+                ` خدمت ${guest.title || ""} ${guest.name}`
+              ]}
+              speed={35}
+              cursor={false}
+            />
+
+          </div>
+
+          {/* MESSAGE */}
+          <div className="text-white text-2xl mt-6 min-h-[60px]">
+
+            <TypeAnimation
+              sequence={[
+                '',
+                8500,
+                'با نهایت احترام حضور گرم شما را دراین مراسم ارج می نهیم'
+              ]}
+              speed={45}
+              cursor={false}
+            />
+
+          </div>
+
+        </div>
+
+        {/* VIDEO */}
+        <div className="relative z-20">
+
+          <video
+            className="
+              invite-video
+              w-full
+              aspect-[9/16]
+              object-cover
+              rounded-[28px]
+              border-2
+              border-yellow-400/40
+              shadow-[0_0_18px_rgba(255,215,0,0.22)]
+            "
+            controls
+            playsInline
+          >
+
+            <source
+              src="/videos/invite.mp4"
+              type="video/mp4"
+            />
+
+          </video>
+
+        </div>
 
       </div>
-
-      <div
-        className="gold-text nastaliq text-center mt-8 leading-[90px] text-[58px]"
-      >
-
-
-
-      {typingStart && (
-
-      <TypeAnimation
-
-      sequence={[
-        800,
-        `خدمت ${guest.title}\n${guest.name}`
-      ]}
-
-      speed={45}
-
-      cursor={false}
-
-      />
-
-      )}
-
-      </div>
-
-      <div className="flex justify-center my-6">
-      <div className="w-44 h-[2px] rounded-full bg-gradient-to-r from-transparent via-yellow-400 to-transparent" />
-      </div>
-
-      <div
-      className="text-center text-white/80 text-xl leading-[48px] mt-10 whitespace-pre-line"
-      >
-
-      {typingStart && (
-
-      <TypeAnimation
-
-      sequence={[
-      "",
-      1500,
-      "با نهایت احترام\nحضور گرم شما را در این مراسم ارج می‌نهیم"
-      ]}
-
-      speed={55}
-
-      cursor={false}
-
-      />
-
-      )}
-
-      </div>
-
-      </div>
-
-      {/* VIDEO */}
-
-      <div className="p-5">
-
-      <div className="relative rounded-[28px] overflow-hidden border border-yellow-400/40 shadow-[0_0_25px_rgba(255,215,0,.35)]">
-
-      <video
-
-      controls
-
-      playsInline
-
-      className="w-full aspect-[9/16] object-cover"
-
-      >
-
-      <source
-
-      src="/videos/invite.mp4"
-
-      type="video/mp4"
-
-      />
-
-      </video>
-
-      </div>
-
-      </div>
-
-      {/* FOOTER */}
-
-      <div className="flex justify-between items-center px-6 pb-5 text-gray-300 text-sm">
-
-      <div>
-
-      <span
-      className="rounded-full
-      bg-yellow-500/10
-      px-4
-      py-2
-      border
-      border-yellow-500/30"
-      >
-
-      {guest.guests_count} نفر
-
-      </span>
-
-      </div>
-
-      <div>
-
-      دعوتنامه اختصاصی
-
-      </div>
-
-      </div>
-
-      </div>
-
-      </motion.div>
-
-      )}
-
-      </AnimatePresence>
 
     </div>
-
   )
-
 }
