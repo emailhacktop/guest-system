@@ -113,12 +113,13 @@ body {
 }
 
 /* =========================
-   MOVING GOLD LIGHT
+   MOVING GOLD LIGHT خط افقی نورانی زیر مهمان
 ========================= */
 
 .header-shine{
     position:relative;
     display:inline-block;
+    width:100%;
 }
 
 .header-shine::after{
@@ -127,39 +128,46 @@ content:"";
 
 position:absolute;
 
-left:-15%;
-bottom:10px;
+left:-30%;
+bottom:8px;
 
-width:130%;
-height:8px;
+width:40%;
+height:4px;
+
+border-radius:999px;
 
 background:linear-gradient(
 90deg,
 transparent,
-rgba(255,230,150,.9),
+#fff4b0,
+#ffd54d,
+#fff4b0,
 transparent
 );
 
-filter:blur(8px);
+filter:blur(3px);
 
-animation:lightMove 3s ease-in-out infinite;
+animation:lightMove 4s linear infinite;
+
+pointer-events:none;
+
 }
 
 @keyframes lightMove{
 
 0%{
-transform:translateX(-50%);
-opacity:.2;
+left:-40%;
+opacity:.15;
 }
 
 50%{
-transform:translateX(40%);
+left:35%;
 opacity:1;
 }
 
 100%{
-transform:translateX(110%);
-opacity:.2;
+left:110%;
+opacity:.15;
 }
 
 }
@@ -445,28 +453,40 @@ margin-top:30px;
 }
 
 /* ==========================
-MAIN CARD
+MAIN CARD عرض
 ==========================*/
 
 .invite-card{
 
-max-width:470px;
+max-width:500px;
 
 width:100%;
 
 }
 
 /* ==========================
-VIDEO
+VIDEO ابعاد ویدئو و نور کادر آن
 ==========================*/
 
 .invite-video{
 
 width:100%;
 
+max-width:none;
+
 aspect-ratio:9/16;
 
-object-fit:cover;
+display:block;
+
+border-radius:26px;
+
+border:2px solid rgba(255,215,0,.55);
+
+box-shadow:
+0 0 30px rgba(255,215,0,.30),
+0 0 90px rgba(255,215,0,.12);
+
+background:#000;
 
 }
 
@@ -691,7 +711,7 @@ pointer-events:none;
 
 }
 
-/* ========================= */
+/* ========= 470 عرض ویدئو ========= */
 
 .invite-card{
 
@@ -699,7 +719,7 @@ position:relative;
 
 overflow:hidden;
 
-max-width:470px;
+max-width:520px;
 
 width:100%;
 
@@ -735,7 +755,7 @@ animation:cardEnter 1.3s ease;
 
 }
 
-/* ========================= */
+/* ======= افکت مورب لوکس ======== */
 
 .invite-card::before{
 
@@ -743,33 +763,37 @@ content:"";
 
 position:absolute;
 
-top:-60%;
+top:-50%;
 
-left:-50%;
+left:-60%;
 
-width:90%;
+width:180px;
 
-height:220%;
+height:260%;
 
 background:
 
 linear-gradient(
-
-120deg,
-
+90deg,
 transparent,
-
-rgba(255,255,255,.10),
-
+rgba(255,255,255,.08),
+rgba(255,248,180,.95),
+rgba(255,255,255,.08),
 transparent
 
 );
 
-transform:rotate(15deg);
+transform:rotate(22deg);
 
-animation:shineMove 9s linear infinite;
+filter:blur(10px);
 
 pointer-events:none;
+
+z-index:999;
+
+opacity:.95;
+
+animation:cardLightMove 5.5s linear infinite;
 
 }
 
@@ -881,7 +905,7 @@ object-fit:cover;
 
 }
 
-/* ========================= */
+/* =======.60 کمتر کنیم ویدئو اول روشنتر شده======= */
 
 .intro-overlay{
 
@@ -973,14 +997,57 @@ padding:14px;
 
 /* ====افکت طلایی روی فیلم حرکت نکند و فقط دور قاب دیده شود===== */
 .video-frame{
-    position: relative;
-    overflow: hidden;
+
+position:relative;
+overflow:hidden;
+
 }
 
-.video-frame::before{
-    display:none;
+.video-frame video{
+    position:relative;
+    z-index:100;
+    display:block;
 }
 
-.video-frame::after{
-    display:none;
+/* ==== همان افکت مورب لوکسی است===== */
+@keyframes cardLightMove{
+
+0%{
+
+transform:
+translateX(-160%)
+rotate(22deg);
+
+opacity:0;
+
+}
+
+12%{
+
+opacity:1;
+
+}
+
+50%{
+
+opacity:1;
+
+}
+
+88%{
+
+opacity:1;
+
+}
+
+100%{
+
+transform:
+translateX(260%)
+rotate(22deg);
+
+opacity:0;
+
+}
+
 }

@@ -161,50 +161,56 @@ export default function GuestPage({
 
         setTimeout(() => {
 
-        setShowMain(true)
-
-        setTimeout(() => {
-
-        useEffect(() => {
-
-          if (!showMain) return
-
-          const t1 = setTimeout(() => {
-            setShowWelcome(true)
-          },300)
-
-          const t2 = setTimeout(() => {
-            setShowTitle(true)
-          },2200)
-
-          const t3 = setTimeout(() => {
-            setShowName(true)
-          },3800)
-
-          const t4 = setTimeout(() => {
-            setShowText(true)
-          },6200)
-
-          return () => {
-            clearTimeout(t1)
-            clearTimeout(t2)
-            clearTimeout(t3)
-            clearTimeout(t4)
-          }
-
-        },[showMain])
-
-        },900)
+          setShowMain(true)
 
         },800)
 
       },7000)
 
-      return ()=>clearTimeout(timer)
+      return () => clearTimeout(timer)
 
     }
 
-  },[loading])
+  }, [loading])
+
+  useEffect(() => {
+
+    if (!showMain) return
+
+    const t1 = setTimeout(() => {
+
+      setShowWelcome(true)
+
+    },500)
+
+    const t2 = setTimeout(() => {
+
+      setShowTitle(true)
+
+    },2500)
+
+    const t3 = setTimeout(() => {
+
+      setShowName(true)
+
+    },4200)
+
+    const t4 = setTimeout(() => {
+
+      setShowText(true)
+
+    },6500)
+
+    return () => {
+
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      clearTimeout(t4)
+
+    }
+
+  }, [showMain])
 
   if (loading) {
 
@@ -278,7 +284,7 @@ export default function GuestPage({
               </video>
             </div>
             
-            <div className="absolute inset-0 bg-black/20"/>
+            <div className="absolute inset-0 bg-black/15"/>
 
             <motion.div
 
@@ -426,21 +432,14 @@ export default function GuestPage({
         </div>
 
         {/* خدمت */}
-        <div className="text-center mt-10 text-yellow-300 text-xl">
-
-          {showTitle && (
-
-            <TypeAnimation
-              sequence={[
-                `خدمت ${guest.title}`
-              ]}
-              speed={55}
-              cursor={false}
-            />
-
-          )}
-
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={showTitle ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="text-center mt-10 text-yellow-300 text-xl"
+        >
+          خدمت {guest.title}
+        </motion.div>
 
         {/* نام مهمان */}
         <div className="flex justify-center mt-3">
@@ -505,11 +504,11 @@ export default function GuestPage({
 
       </div>
 
-      {/* VIDEO */}
+      {/* VIDEOبرا عرض ویدئو "p-5" */}
 
-      <div className="p-5">
+      <div className="px-1 pb-5">
 
-      <div className="relative rounded-[28px] overflow-hidden border border-yellow-400/40 shadow-[0_0_25px_rgba(255,215,0,.35)] video-frame">
+      <div className="relative rounded-[28px] overflow-hidden video-frame">
 
       <video
 
@@ -517,7 +516,7 @@ export default function GuestPage({
 
       playsInline
 
-      className="w-full aspect-[9/16] object-cover"
+      className="invite-video w-full aspect-[9/16] object-cover"
 
       >
 
