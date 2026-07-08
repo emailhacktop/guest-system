@@ -60,7 +60,7 @@ body {
 
 .gold-border::before {
   content: "";
-  z-index:5;
+  
   position: absolute;
 
   inset: 0;
@@ -87,6 +87,8 @@ body {
   mask-composite: exclude;
 
   pointer-events: none;
+
+  z-index:5;
 }
 
 /* =========================
@@ -641,7 +643,7 @@ pointer-events:none;
 
 }
 
-/* ======= invite-card رنگ کارت ======= */
+/* ======= invite-card رنگ ,استایل کارت ======= */
 
 .invite-card{
   
@@ -649,6 +651,7 @@ position:relative;
 
 overflow:hidden;
 isolation:isolate;
+border-radius:35px;
 
 background:
 
@@ -660,7 +663,7 @@ rgba(30,20,0,.97) 35%,
 rgba(10,10,10,.98) 100%
 );
 
-border-radius:35px;
+
 
 box-shadow:
 0 0 12px rgba(255,215,0,.20),

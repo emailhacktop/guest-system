@@ -525,7 +525,7 @@ export default function GuestPage({
 
       {/* FOOTER */}
 
-      <div className="flex justify-between items-center px-6 pb-5 text-gray-300 text-sm">
+      <div className="relative z-10 flex justify-between items-center px-6 pb-5 text-gray-300 text-sm">
 
       <div>
 
