@@ -92,6 +92,13 @@ body {
 }
 
 
+/* 👇 این قسمت را دقیقا اینجا اضافه کن */
+
+.intro-frame.gold-border::before{
+  inset:-3px;
+  padding:3px;
+  border-radius:36px;
+}
 
 /* =========================
    FADE IN
@@ -857,19 +864,19 @@ left:115%;
 
 }
 
-/* ==== قاب صفحه اول  ======*/
-.intro-video-frame{
+/* قاب صفحه اول */
+.intro-frame{
+  position: relative;
+  padding: 8px;          /* فاصله قاب تا فیلم */
+  border-radius: 34px;
+  overflow:visible;
+  background: rgba(25,20,0,.35);
+  box-sizing: border-box;
+}
 
-position:relative;
-
-border-radius:28px;
-
-overflow:hidden;
-
-border:2px solid rgba(255,215,0,.55);
-
-box-shadow:
-0 0 15px rgba(255,215,0,.25),
-0 0 45px rgba(255,215,0,.15);
-
+.intro-frame video{
+  width:100%;
+  display:block;
+  border-radius:20px;
+  
 }
