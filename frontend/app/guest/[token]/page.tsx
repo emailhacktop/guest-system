@@ -443,12 +443,12 @@ export default function GuestPage({
         </motion.div>
 
         {/* نام مهمان */}
-        <div className="flex justify-center mt-3">
+        <div className="flex justify-center mt-6">
 
 
 
             <div
-              className="gold-text nastaliq text-center leading-[90px] text-[58px]"
+              className="gold-text nastaliq text-center leading-[115px] text-[58px] pt-4"
               style={{
                 fontFamily: "IranNastaliq"
               }}
@@ -507,7 +507,7 @@ export default function GuestPage({
 
       {/* VIDEOبرا عرض ویدئو "p-5" */}
 
-      <div className="px-1 pb-5">
+      <div className="-mx-2 md:mx-0 pb-5">
 
       <div className="relative rounded-[28px] overflow-hidden video-frame">
 
