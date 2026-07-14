@@ -390,7 +390,7 @@ export default function GuestPage({
 
       >
 
-      {/* CARD */}
+      {/* CARD ابعاد صفحه دوم*/}
 
       <div
 
@@ -400,7 +400,7 @@ export default function GuestPage({
 
       gold-border
 
-      max-w-[460px]
+      max-w-[560px]
 
       w-full
 
