@@ -10,9 +10,33 @@ import { createClient } from "@supabase/supabase-js"
 import xlsx from "xlsx"
 
 
+function sanitizeText(value, maxLength = 100) {
+  if (typeof value !== "string") return ""
+
+  return value
+    .trim()
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .slice(0, maxLength)
+}
+
 function handleSupabaseError(res, error) {
 
 console.error("SUPABASE ERROR:", error)
+
+console.error("Supabase error details:", {
+  message: error?.message,
+  code: error?.code,
+  details: error?.details,
+  hint: error?.hint,
+})
+
+if (error?.code === "23505") {
+  return res.status(409).json({
+    success: false,
+    message: "رکورد تکراری است"
+  })
+}
 
 return res.status(500).json({
 success: false,
@@ -31,6 +55,14 @@ helmet({
 crossOriginResourcePolicy: false
 })
 )
+
+//باعث می‌شود هکرها نفهمند سرور Express است.
+app.disable("x-powered-by")
+
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store")
+  next()
+})
 
 app.use(cors({
 
@@ -83,21 +115,21 @@ next(err)
 })
 
 // ========================
-// RATE LIMIT
+// LOGIN RATE LIMIT
 // ========================
-const apiLimiter = rateLimit({
-
+// هر IP فقط 5 بار می‌تواند رمز اشتباه بزند.
+const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-
-  max: 100,
-
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     success: false,
-    message: "Too many requests"
+    message: "تعداد تلاش برای ورود زیاد است. ۱۵ دقیقه دیگر دوباره تلاش کنید."
   }
 })
 
-app.use("/api", apiLimiter)
+
 
 // ========================
 // SUPABASE اگر رکوردها زیاد شد و کند شد9خط { پاک شود}
@@ -141,10 +173,13 @@ function verifyToken(
 
   try {
 
-    jwt.verify(
+    // برای نگهداری اطلاعات توکن
+    const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET
     )
+
+    req.user = decoded
 
     next()
 
@@ -160,7 +195,10 @@ function verifyToken(
 // ========================
 // LOGIN
 // ========================
-app.post("/api/login", async (req, res) => {
+app.post(
+  "/api/login",
+  loginLimiter,
+  async (req, res) => {
 
   const { password } = req.body
 
@@ -192,7 +230,8 @@ app.post("/api/login", async (req, res) => {
   const token = jwt.sign(
 
     {
-      role: "admin"
+      role: "admin",
+      app: "guest-system"
     },
 
     process.env.JWT_SECRET,
@@ -250,19 +289,17 @@ app.post(
     max_views
     } = req.body
 
-    // validation
-    if (
-      !name ||
-      name.trim() === ""
-    ) {
+    const cleanName = sanitizeText(name, 100)
+    const cleanTitle = sanitizeText(title, 30)
 
+    // validation
+    if (cleanName === "") {
       return res.status(400).json({
         success: false,
-        message:
-          "نام مهمان الزامی است"
+        message: "نام مهمان الزامی است"
       })
     }
-
+      
     if (
       typeof max_views !== "number" ||
       max_views < 1 ||
@@ -295,10 +332,7 @@ app.post(
     } = await supabase
       .from("guests")
       .select("*")
-      .eq(
-        "name",
-        name.trim()
-      )
+      .eq("name", cleanName)
       .maybeSingle()
 
     if (existing) {
@@ -325,10 +359,10 @@ app.post(
       .insert([
         {
         name:
-          name.trim(),
+          cleanName,
         
         title:
-          title || "خانواده",  
+          cleanTitle || "خانواده",  
         
           max_views,
         
@@ -372,21 +406,19 @@ app.put(
       max_views
     } = req.body
 
+    const cleanName = sanitizeText(name, 100)
+    const cleanTitle = sanitizeText(title, 30)
 // ========================
 // VALIDATION
 // ========================
-    if (
-      !name ||
-      name.trim() === ""
-    ) {
-
+    if (cleanName === "") {
       return res.status(400).json({
         success: false,
-        message:
-          "نام مهمان الزامی است"
+        message: "نام مهمان الزامی است"
       })
     }
 
+      
     if (
       typeof max_views !== "number" ||
       max_views < 1 ||
@@ -423,7 +455,7 @@ app.put(
       .select("*")
       .eq(
         "name",
-        name.trim()
+        cleanName
       )
       .neq("id", id)
       .maybeSingle()
@@ -447,10 +479,10 @@ app.put(
       .from("guests")
       .update({
         name:
-          name.trim(),
+          cleanName,
 
         title:
-         title || "خانواده",
+         cleanTitle || "خانواده",
          
         max_views,
 
@@ -855,10 +887,10 @@ function validateBackup(guests) {
 
     const row = index + 1
 
-    if (
-      !g.name ||
-      g.name.trim() === ""
-    ) {
+    const cleanName = sanitizeText(g.name, 100)
+    const cleanTitle = sanitizeText(g.title, 30)
+
+    if (cleanName === "") {
 
       errors.push(
         `رکورد ${row}: نام مهمان خالی است`
@@ -872,7 +904,7 @@ function validateBackup(guests) {
       )
 
     } else if (
-      !validTitles.includes(g.title)
+      !validTitles.includes(cleanTitle)
     ) {
 
       errors.push(
@@ -1045,8 +1077,10 @@ try {
 //  فقط ستون‌های مجاز ریستور میشود
 // ========================
 const cleanedGuests = guests.map(g => ({
-  name: g.name.trim(),
-  title: g.title,
+  name: sanitizeText(g.name, 100),
+  title: ["خانواده", "آقای", "خانم"].includes(g.title)
+  ? g.title
+  : "خانواده",
   guests_count: g.guests_count,
   token: g.token,
   views: g.views,
