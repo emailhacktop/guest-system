@@ -269,12 +269,21 @@ export default function GuestPage({
           >
 
             <div className="absolute inset-0 flex items-center justify-center">
-            
+              <div
+                className="
+                relative
+                w-[420px]
+                md:w-[520px]
+                lg:w-[620px]
+                intro-video-frame
+                "
+              >
+
               <video
                 autoPlay
                 muted
                 playsInline
-                className="w-[420px] md:w-[520px] lg:w-[620px] object-contain"
+                className="block w-full h-auto"
               >
                 <source
                   src="/videos/opening.mp4"
@@ -282,8 +291,8 @@ export default function GuestPage({
 
                 />
               </video>
+              </div>
             </div>
-            
             <div className="absolute inset-0 bg-black/15"/>
 
             <motion.div
