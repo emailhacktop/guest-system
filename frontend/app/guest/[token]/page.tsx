@@ -486,7 +486,7 @@ export default function GuestPage({
 
         {/* متن پایین */}
         <div
-          className="text-center text-white/80 text-base md:text-xl leading-[48px] mt-8 whitespace-pre-line"
+          className="text-center text-white/80 text-[15px] md:text-xl leading-[40px] md:leading-[48px] mt-8 whitespace-pre-line"
         >
 
           {showText && (
