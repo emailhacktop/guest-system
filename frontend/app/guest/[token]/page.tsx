@@ -493,7 +493,7 @@ export default function GuestPage({
 
             <TypeAnimation
               sequence={[
-                "با نهایت احترام\nحضور گرم شما را ارج می‌نهیم"
+                "با نهایت احترام حضور گرم شما را دراین مراسم\n ارج می نهیم ومشتاق دیدار شما هستیم"
               ]}
               speed={55}
               cursor={false}
@@ -542,16 +542,17 @@ export default function GuestPage({
       <div>
 
       <span
-      className="rounded-full
-      bg-yellow-500/10
-      px-4
-      py-2
-      border
-      border-yellow-500/30"
+        className="
+          rounded-full
+          bg-yellow-500/10
+          px-4
+          py-2
+          border
+          border-yellow-500/30
+          whitespace-nowrap
+        "
       >
-
-      {guest.guests_count} نفر
-
+        دعوت برای {guest.guests_count} نفر
       </span>
 
       </div>
