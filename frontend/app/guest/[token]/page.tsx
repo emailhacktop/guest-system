@@ -242,11 +242,40 @@ export default function GuestPage({
 
     return (
 
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div
+      className="
+      relative
+      min-h-screen
+      overflow-hidden
+      bg-[radial-gradient(circle_at_center,#5b3b00_0%,#2b1b00_35%,#120b00_65%,#000000_100%)]
+    "
+    >
 
       {/* GOLD PARTICLES */}
 
       <div className="gold-snow"></div>
+      
+      {/* ==========================
+        GOLD LIGHT EFFECT
+        هاله طلایی صفحه دوم پشت کارت
+        فقط برای زیبایی و ایجاد نور
+      ========================== */}
+      <div
+        className="
+          absolute
+          left-1/2
+          top-1/2
+          -translate-x-1/2
+          -translate-y-1/2
+          w-[900px]
+          h-[900px]
+          rounded-full
+          bg-yellow-400/10
+          blur-[180px]
+          pointer-events-none
+          z-0
+        "
+      />
 
       {/* INTRO */}
 
@@ -264,9 +293,34 @@ export default function GuestPage({
 
             transition={{ duration:1 }}
 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+            className="
+            fixed inset-0 z-50
+            flex items-center justify-center
+            bg-[radial-gradient(circle_at_center,#5b3b00_0%,#2b1b00_35%,#120b00_65%,#000000_100%)]
+            "
 
           >
+
+            {/* ==========================
+            GOLD LIGHT EFFECT
+            هاله طلایی صفحه اول پشت کارت
+            فقط برای زیبایی و ایجاد نور
+            ========================== */}
+            <div
+              className="
+                absolute
+                left-1/2
+                top-1/2
+                -translate-x-1/2
+                -translate-y-1/2
+                w-[650px]
+                h-[650px]
+                rounded-full
+                bg-yellow-400/15
+                blur-[140px]
+                pointer-events-none
+              "
+            />
 
             <div className="absolute inset-0 flex items-center justify-center">
               
