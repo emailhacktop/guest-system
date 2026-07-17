@@ -331,6 +331,8 @@ export default function GuestPage({
                     w-[90vw]
                     max-w-[620px]
                     mx-4
+                    aspect-[9/13]
+                    md:aspect-auto
                   "
                 >
 
@@ -338,7 +340,7 @@ export default function GuestPage({
                   autoPlay
                   muted
                   playsInline
-                  className="block w-full h-auto rounded-[24px] object-contain"
+                  className="block w-full h-full rounded-[24px] object-contain object-center"
                 >
                   <source
                     src="/videos/opening.mp4"
@@ -606,14 +608,14 @@ export default function GuestPage({
           whitespace-nowrap
         "
       >
-        دعوت برای {guest.guests_count} نفر
+         برای {guest.guests_count} نفر
       </span>
 
       </div>
 
       <div>
 
-      دعوتنامه اختصاصی
+      دعوتنامه
 
       </div>
 
