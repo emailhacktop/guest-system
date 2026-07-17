@@ -565,16 +565,20 @@ export default function GuestPage({
 
       <div className="-mx-2 md:mx-0 pb-5">
 
-      <div className="relative rounded-[28px] overflow-hidden video-frame">
+      <div
+        className="relative rounded-[28px] overflow-hidden video-frame"
+        onContextMenu={(e) => e.preventDefault()}
+      >
 
       <video
-
-      controls
-
-      playsInline
-
-      className="invite-video w-full aspect-[9/16] object-cover"
-
+        controls
+        controlsList="nodownload noplaybackrate nofullscreen"
+        disablePictureInPicture
+        disableRemotePlayback
+        onContextMenu={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+        playsInline
+        className="invite-video w-full aspect-[9/16] object-cover"
       >
 
       <source
